@@ -79,6 +79,7 @@ export function AuthProvider({ children }) {
   const SignOut = async () => {
     try {
       await signOut(auth);
+      history.push("/");
       console.log("logged out");
     } catch (error) {
       console.log(error);

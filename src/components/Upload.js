@@ -10,58 +10,115 @@ import {
 } from "firebase/storage";
 
 function Upload() {
-  const [uploading, setuploading] = useState();
-  const [file, setFile] = useState({});
+  const [uploading, setuploading] = useState("");
+  const [disableUp, setdisableUp] = useState("disable");
+  const [url, setUrl] = useState("");
+  const [file, setFile] = useState("");
+  const [uploadEvent, setuploadEvent] = useState({
+    currState: "",
+    pause: "",
+    resume: "",
+    cancel: "",
+  });
   const [uploadChange, setuploadChange] = useState("upload");
   const [fName, setfName] = useState("unNamed");
   const storage = getStorage();
   const { currentUser } = useAuth();
 
   let files;
-  let fileName, contentType;
+  let contentType;
 
   async function handleInput(e) {
     files = await e.target.files[0];
-    setFile(files)
-    document.getElementById("name").value = files.name.slice(0, -4);
-    contentType = files.type;
-    console.log(files);
+    if (files.size > 22097152) {
+      setuploadChange("File is too big!");
+      document.getElementById("submit").disabled = true;
+      e.value = "";
+      setUrl("") 
+    } else {
+      setUrl(window.URL.createObjectURL(e.target.files[0]));
+      setFile(files);
+      document.getElementById("name").value = files.name.slice(0, -4);
+      setfName(document.getElementById("name").value);
+      document.getElementById("submit").disabled = false;
+      contentType = files.type;
+      console.log(files, url);
+      setuploadChange("Perfect Upload!!");
+    }
   }
   const getName = (e) => {
     setfName(e.target.value);
-
-    console.log(fileName);
+    console.log(e.target.value);
   };
 
   async function uploadNow(e) {
     e.preventDefault();
-    const fileData = await files;
-    console.log(fileData);
+
     const metadata = {
       contentType: contentType,
       customMetadata: {
+        name: fName,
         uploadedBy: currentUser.displayName,
         email: currentUser.email,
       },
     };
-    const storageRef = ref(storage, "videos/" + fName);
-    const uploadTask = uploadBytesResumable(storageRef, fileData, metadata);
-    try {
+    if (file !== "") {
+      console.log(file);
+      const storageRef = ref(storage, "videos/" + fName);
+      const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+      setuploadEvent({
+        currState: "",
+        pause: "",
+        resume: "",
+        cancel: "",
+      });
+
       uploadTask.on(
         "state_changed",
         (snapshot) => {
+          setuploadEvent({
+            currState: snapshot.state,
+            pause: () => {
+              uploadTask.pause();
+              console.log("paused");
+            },
+            resume: () => {
+              uploadTask.resume();
+              console.log("resume");
+            },
+            cancel: () => {
+              uploadTask.cancel();
+              
+              setuploadEvent({
+                currState: "",
+                pause: "",
+                resume: "",
+                cancel: "",
+              });
+              console.log("Upload is canceled");
+              setuploadChange("canceled Upload again?");
+              setuploading("");
+            },
+          });
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           console.log("Upload is " + parseInt(progress) + "% done");
           setuploading("Uploading " + parseInt(progress) + "%");
+
           switch (snapshot.state) {
             case "paused":
               console.log("Upload is paused");
-              setuploadChange("resume");
+              setuploadChange("paused");
+              setuploading("paused " + parseInt(progress) + "%");
+              break;
+            case "canceled":
+              
               break;
             case "running":
               console.log("Upload is running");
-              setuploadChange("pause");
+              setuploadChange("uploading");
+              document.getElementById("submit").disabled = true;
+              setuploading("uploading " + parseInt(progress) + "%");
               break;
           }
         },
@@ -78,13 +135,20 @@ function Upload() {
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             console.log("File available at", downloadURL);
-            setuploading("Uploaded");
-            setuploadChange("Upload Again?");
+            setuploading("Done!!!");
+            setuploadChange("choose diffrent video to upload");
+            document.getElementById("submit").disabled = true;
+            setuploadEvent({
+              currState: "",
+              pause: "",
+              resume: "",
+              cancel: "",
+            });
           });
         }
       );
-    } catch (error) {
-      console.log(error);
+    } else {
+      alert("add file or wait please");
     }
   }
   return (
@@ -117,27 +181,35 @@ function Upload() {
                 Attach a video
               </label>
               <div class="flex items-center justify-center w-full">
-                <label class="flex flex-col rounded-lg border-4 border-dashed w-full h-60 p-10 group text-center">
+                <label class="flex flex-col rounded-lg border-4 border-dashed w-full h-60 p-2 group text-center">
                   <div class="text-gray-400 h-full w-full text-center flex flex-col items-center justify-center items-center  ">
-                    
-                    {`File size is ${file.size/1000/1000}MB`}
-                    <div class="flex flex-auto max-h-48 w-2/5 mx-auto -mt-10">
-                      {/* <img class="has-mask h-36 object-center" src="https://img.freepik.com/free-vector/image-upload-concept-landing-page_52683-27130.jpg?size=338&ext=jpg" alt="freepik image" /> */}
+                    <div class="flex flex-auto rounded-lg mx-auto ">
+                      <video
+                        class="max-h-44 rounded-lg object-center"
+                        src={url}
+                        alt=""
+                      />
                     </div>
+                    {url === ""
+                      ? ""
+                      : `File size is ${(file.size / 1000 / 1000).toFixed(
+                          2
+                        )}MB`}
                     <p class="pointer-none text-gray-500 ">
-                      <span class="text-sm">Drag and drop</span> files here{" "}
-                      <br /> or{" "}
-                      <a href="" id="" class="text-blue-600 hover:underline">
-                        select a file
-                      </a>{" "}
-                      from your computer
+                      {url === "" ? (
+                        <span class="text-sm">Drag and drop files here</span>
+                      ) : (
+                        ""
+                      )}
                     </p>
                   </div>
+
                   <input
                     onChange={handleInput}
                     type="file"
                     accept="video/*"
                     class="hidden"
+                    maxLength=""
                     required
                   />
                 </label>
@@ -149,13 +221,47 @@ function Upload() {
             <div>
               <button
                 type="submit"
+                id="submit"
                 class="my-5 w-full flex justify-center bg-blue-500 text-gray-100 p-4  rounded-full tracking-wide
-                                    font-semibold  focus:outline-none focus:shadow-outline hover:bg-blue-600 shadow-lg cursor-pointer transition ease-in duration-300"
+                                    font-semibold  focus:outline-none focus:shadow-outline hover:bg-blue-600 shadow-lg cursor-pointer transition ease-in duration-300 disabled:opacity-50"
+                disabled
               >
                 {uploadChange}
               </button>
             </div>
           </form>
+          <div className="flex">
+            {uploadEvent.currState === "" ? (
+              ""
+            ) : uploadEvent.currState === "running" ? (
+              <button
+                class="my-2 flex justify-center bg-green-500 rounded-full text-gray-100 px-4 py-2 tracking-wide
+                                      focus:outline-none focus:shadow-outline hover:bg-red-600 shadow-lg cursor-pointer transition ease-in duration-300"
+                onClick={uploadEvent.pause}
+              >
+                pause
+              </button>
+            ) : (
+              <button
+                class="my-2 flex justify-center bg-green-500 rounded-full text-gray-100 px-4 py-2 tracking-wide
+                                      focus:outline-none focus:shadow-outline hover:bg-red-600 shadow-lg cursor-pointer transition ease-in duration-300"
+                onClick={uploadEvent.resume}
+              >
+                resume
+              </button>
+            )}
+            {uploadEvent.currState === "" ? (
+              ""
+            ) : (
+              <button
+                class="m-2 flex justify-center bg-red-500 rounded-full text-gray-100 px-4 py-2 tracking-wide
+                                      focus:outline-none focus:shadow-outline hover:bg-red-600 shadow-lg cursor-pointer transition ease-in duration-300"
+                onClick={uploadEvent.cancel}
+              >
+                cancel
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </>
