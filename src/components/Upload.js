@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./css/upload.css";
-import pic from "./pic.jpg";
+import { useAuth } from "../contexts/Auth";
+
 import {
   getStorage,
   ref,
@@ -8,63 +9,83 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 
-
 function Upload() {
+  const [uploading, setuploading] = useState();
+  const [file, setFile] = useState({});
+  const [uploadChange, setuploadChange] = useState("upload");
+  const [fName, setfName] = useState("unNamed");
   const storage = getStorage();
-  const [state, setstate] = useState(initialState)
-  // Create the file metadata
-  function uploadNow(e) {
-    e.preventdefault()
+  const { currentUser } = useAuth();
+
+  let files;
+  let fileName, contentType;
+
+  async function handleInput(e) {
+    files = await e.target.files[0];
+    setFile(files)
+    document.getElementById("name").value = files.name.slice(0, -4);
+    contentType = files.type;
+    console.log(files);
+  }
+  const getName = (e) => {
+    setfName(e.target.value);
+
+    console.log(fileName);
+  };
+
+  async function uploadNow(e) {
+    e.preventDefault();
+    const fileData = await files;
+    console.log(fileData);
     const metadata = {
-      contentType: "image/jpg",
+      contentType: contentType,
+      customMetadata: {
+        uploadedBy: currentUser.displayName,
+        email: currentUser.email,
+      },
     };
-
-    // Upload file and metadata to the object 'images/mountains.jpg'
-    const storageRef = ref(storage, "images/" + "pic.jpg");
-    const uploadTask = uploadBytesResumable(storageRef, pic, metadata);
-
-    // Listen for state changes, errors, and completion of the upload.
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log("Upload is " + progress + "% done");
-        switch (snapshot.state) {
-          case "paused":
-            console.log("Upload is paused");
-            break;
-          case "running":
-            console.log("Upload is running");
-            break;
+    const storageRef = ref(storage, "videos/" + fName);
+    const uploadTask = uploadBytesResumable(storageRef, fileData, metadata);
+    try {
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log("Upload is " + parseInt(progress) + "% done");
+          setuploading("Uploading " + parseInt(progress) + "%");
+          switch (snapshot.state) {
+            case "paused":
+              console.log("Upload is paused");
+              setuploadChange("resume");
+              break;
+            case "running":
+              console.log("Upload is running");
+              setuploadChange("pause");
+              break;
+          }
+        },
+        (error) => {
+          switch (error.code) {
+            case "storage/unauthorized":
+              break;
+            case "storage/canceled":
+              break;
+            case "storage/unknown":
+              break;
+          }
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            console.log("File available at", downloadURL);
+            setuploading("Uploaded");
+            setuploadChange("Upload Again?");
+          });
         }
-      },
-      (error) => {
-        // A full list of error codes is available at
-        // https://firebase.google.com/docs/storage/web/handle-errors
-        switch (error.code) {
-          case "storage/unauthorized":
-            // User doesn't have permission to access the object
-            break;
-          case "storage/canceled":
-            // User canceled the upload
-            break;
-
-          // ...
-
-          case "storage/unknown":
-            // Unknown error occurred, inspect error.serverResponse
-            break;
-        }
-      },
-      () => {
-        // Upload completed successfully, now we can get the download URL
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          console.log("File available at", downloadURL);
-        });
-      }
-    );
+      );
+    } catch (error) {
+      console.log(error);
+    }
   }
   return (
     <>
@@ -77,7 +98,7 @@ function Upload() {
               Upload your meme here in video format{" "}
             </p>
           </div>
-          <form onSubmit={uploadNow} class="mt-8 space-y-3" method="POST">
+          <form onSubmit={uploadNow} class="mt-8 space-y-3">
             <div class="grid grid-cols-1 space-y-2">
               <label class="text-sm font-bold text-gray-500 tracking-wide">
                 Title
@@ -85,7 +106,9 @@ function Upload() {
               <input
                 class="text-base p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
                 type=""
+                id="name"
                 placeholder="enter your meme name"
+                onChange={getName}
                 required
               />
             </div>
@@ -95,10 +118,9 @@ function Upload() {
               </label>
               <div class="flex items-center justify-center w-full">
                 <label class="flex flex-col rounded-lg border-4 border-dashed w-full h-60 p-10 group text-center">
-                  <div class="h-full w-full text-center flex flex-col items-center justify-center items-center  ">
-                    {/* <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-blue-400 group-hover:text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                    </svg> */}
+                  <div class="text-gray-400 h-full w-full text-center flex flex-col items-center justify-center items-center  ">
+                    
+                    {`File size is ${file.size/1000/1000}MB`}
                     <div class="flex flex-auto max-h-48 w-2/5 mx-auto -mt-10">
                       {/* <img class="has-mask h-36 object-center" src="https://img.freepik.com/free-vector/image-upload-concept-landing-page_52683-27130.jpg?size=338&ext=jpg" alt="freepik image" /> */}
                     </div>
@@ -111,12 +133,18 @@ function Upload() {
                       from your computer
                     </p>
                   </div>
-                  <input type="file" class="hidden" required />
+                  <input
+                    onChange={handleInput}
+                    type="file"
+                    accept="video/*"
+                    class="hidden"
+                    required
+                  />
                 </label>
               </div>
             </div>
-            <p class="text-sm text-gray-300">
-              <span>File type: mp4</span>
+            <p class="text-sm text-gray-800">
+              <span>{uploading}</span>
             </p>
             <div>
               <button
@@ -124,7 +152,7 @@ function Upload() {
                 class="my-5 w-full flex justify-center bg-blue-500 text-gray-100 p-4  rounded-full tracking-wide
                                     font-semibold  focus:outline-none focus:shadow-outline hover:bg-blue-600 shadow-lg cursor-pointer transition ease-in duration-300"
               >
-                Upload
+                {uploadChange}
               </button>
             </div>
           </form>
