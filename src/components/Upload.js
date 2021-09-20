@@ -11,8 +11,8 @@ import {
 
 function Upload() {
   const [uploading, setuploading] = useState("");
-  const [disableUp, setdisableUp] = useState("disable");
   const [url, setUrl] = useState("");
+  const [thumbURL, setThumbURL] = useState("");
   const [file, setFile] = useState("");
   const [uploadEvent, setuploadEvent] = useState({
     currState: "",
@@ -25,8 +25,24 @@ function Upload() {
   const storage = getStorage();
   const { currentUser } = useAuth();
 
-  let files;
+  let files = "";
   let contentType;
+  let video = document.getElementById("video");
+  let canvas = document.getElementById("canvas");
+  let w, h, ratio, context;
+
+  async function getThumbnail() {
+    context = canvas.getContext("2d");
+    ratio = video.videoWidth / video.videoHeight;
+    w = video.videoWidth - 100;
+    h = parseInt(w / ratio, 10);
+    canvas.width = w;
+    canvas.height = h;
+    context.fillRect(0, 0, w, h);
+    context.drawImage(video, 0, 0, w, h);
+    setThumbURL(canvas.toDataURL());
+    console.log(thumbURL);
+  }
 
   async function handleInput(e) {
     files = await e.target.files[0];
@@ -34,7 +50,8 @@ function Upload() {
       setuploadChange("File is too big!");
       document.getElementById("submit").disabled = true;
       e.value = "";
-      setUrl("") 
+      setUrl("");
+      setFile("");
     } else {
       setUrl(window.URL.createObjectURL(e.target.files[0]));
       setFile(files);
@@ -60,6 +77,7 @@ function Upload() {
         name: fName,
         uploadedBy: currentUser.displayName,
         email: currentUser.email,
+        thumbnail: "",
       },
     };
     if (file !== "") {
@@ -88,7 +106,7 @@ function Upload() {
             },
             cancel: () => {
               uploadTask.cancel();
-              
+
               setuploadEvent({
                 currState: "",
                 pause: "",
@@ -112,7 +130,6 @@ function Upload() {
               setuploading("paused " + parseInt(progress) + "%");
               break;
             case "canceled":
-              
               break;
             case "running":
               console.log("Upload is running");
@@ -120,6 +137,7 @@ function Upload() {
               document.getElementById("submit").disabled = true;
               setuploading("uploading " + parseInt(progress) + "%");
               break;
+            default:
           }
         },
         (error) => {
@@ -130,6 +148,7 @@ function Upload() {
               break;
             case "storage/unknown":
               break;
+            default:
           }
         },
         () => {
@@ -184,11 +203,17 @@ function Upload() {
                 <label class="flex flex-col rounded-lg border-4 border-dashed w-full h-60 p-2 group text-center">
                   <div class="text-gray-400 h-full w-full text-center flex flex-col items-center justify-center items-center  ">
                     <div class="flex flex-auto rounded-lg mx-auto ">
-                      <video
-                        class="max-h-44 rounded-lg object-center"
-                        src={url}
-                        alt=""
-                      />
+                      {file === "" ? (
+                        ""
+                      ) : (
+                        <video
+                          controls
+                          class="max-h-44 rounded-lg object-center"
+                          src={url}
+                          alt=""
+                          id="video"
+                        />
+                      )}
                     </div>
                     {url === ""
                       ? ""
@@ -261,9 +286,17 @@ function Upload() {
                 cancel
               </button>
             )}
+            <button
+              class="m-2 flex justify-center bg-yellow-500 rounded-full text-gray-100 px-4 py-2 tracking-wide
+                                      focus:outline-none focus:shadow-outline hover:bg-yellow-600 shadow-lg cursor-pointer transition ease-in duration-300"
+              onClick={getThumbnail}
+            >
+              snap
+            </button>
           </div>
         </div>
       </div>
+      <canvas id="canvas"></canvas>
     </>
   );
 }

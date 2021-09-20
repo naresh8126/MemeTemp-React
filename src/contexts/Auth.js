@@ -22,7 +22,7 @@ export const useAuth = () => {
 export function AuthProvider({ children }) {
   const history = useHistory();
   const auth = getAuth();
-  const [currentUser, setcurrentUser] = useState();
+  const [currentUser, setcurrentUser] = useState("");
   
  
  
@@ -80,6 +80,7 @@ export function AuthProvider({ children }) {
     try {
       await signOut(auth);
       history.push("/");
+      setcurrentUser("")
       console.log("logged out");
     } catch (error) {
       console.log(error);

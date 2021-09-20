@@ -52,7 +52,7 @@ const Nav = () => {
               />
 
               <div class="flex mx-auto">
-                {currentUser === null || currentUser === undefined ? (
+                {currentUser === "" ? (
                   <>
                     <Btn color="green" name="Login" to="/login" />
                     <Btn color="blue" name="Register" to="/register" />
