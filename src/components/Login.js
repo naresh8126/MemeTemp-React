@@ -1,11 +1,12 @@
-import React, { useContext } from "react";
-import { Link, Redirect,useHistory } from "react-router-dom";
+import React from "react";
+import { Link, useHistory } from "react-router-dom";
 import { useAuth } from "../contexts/Auth";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import Alert from "./Alert";
 
 function Login() {
-  const history = useHistory()
-  const { signWthGoogle, Login, currentUser } = useAuth();
+  const history = useHistory();
+  const [errorMessage, setErrorMessage] = React.useState('');
+  const { signWthGoogle, Login } = useAuth();
   const [user, setUser] = React.useState({
     email: "",
     password: "",
@@ -18,20 +19,20 @@ function Login() {
     setUser({ ...user, [name]: value });
   };
 
-  const addUser = async  (e) => {
+  const addUser = async (e) => {
     e.preventDefault();
     await Login(user.email, user.password);
-    history.push("/")
+   
   };
 
   return (
     <div>
       <body>
-        <section class="min-h-screen flex items-stretch text-white ">
+        <section class="min-h-screen flex items-stretch text-white h-screen">
           <div class="lg:flex w-1/2 hidden bg-gray-500 bg-no-repeat bg-cover relative items-center">
             <div class="absolute bg-black opacity-60 inset-0 z-0"></div>
             <div class="w-full px-24 z-10">
-              <h1 class="text-5xl font-bold text-left tracking-wide"></h1>
+              <h1 class="text-5xl font-bold text-left tracking-wide">Keep it special</h1>
               <p class="text-3xl my-4">memes that makes your video pop up</p>
             </div>
             <div class="bottom-0 absolute p-4 text-center right-0 left-0 flex justify-center space-x-4">
@@ -88,10 +89,16 @@ function Login() {
                 MemeTemp
               </Link>
               <div class="py-6 space-x-2">
-                <button onClick={signWthGoogle}  class="cursor-pointer w-10 h-10 items-center justify-center inline-flex rounded-full font-bold text-lg border-2 border-white">
+                <button
+                  onClick={signWthGoogle}
+                  class="cursor-pointer w-10 h-10 items-center justify-center inline-flex rounded-full font-bold text-lg border-2 border-white"
+                >
                   f
                 </button>
-                <button onClick={signWthGoogle} class="cursor-pointer w-10 h-10 items-center justify-center inline-flex rounded-full font-bold text-lg border-2 border-white">
+                <button
+                  onClick={signWthGoogle}
+                  class="cursor-pointer w-10 h-10 items-center justify-center inline-flex rounded-full font-bold text-lg border-2 border-white"
+                >
                   G
                 </button>
               </div>
@@ -121,7 +128,9 @@ function Login() {
                       value={user.password}
                       required
                     />
+                  {errorMessage===""?"":errorMessage}
                   </div>
+
                   <div class="text-right text-gray-400 hover:underline hover:text-gray-100">
                     <a href="#">Forgot your password?</a>
                   </div>

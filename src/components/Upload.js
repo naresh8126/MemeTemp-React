@@ -1,18 +1,21 @@
 import { useState } from "react";
 import "./css/upload.css";
 import { useAuth } from "../contexts/Auth";
-
+import { doc, setDoc, getFirestore } from "firebase/firestore";
 import {
   getStorage,
   ref,
   uploadBytesResumable,
   getDownloadURL,
+  uploadBytes,
 } from "firebase/storage";
 
 function Upload() {
+  const db = getFirestore();
+  let thumbnailUrl = "";
   const [uploading, setuploading] = useState("");
   const [url, setUrl] = useState("");
-  const [thumbURL, setThumbURL] = useState("");
+  let thumU = "";
   const [file, setFile] = useState("");
   const [uploadEvent, setuploadEvent] = useState({
     currState: "",
@@ -40,8 +43,20 @@ function Upload() {
     canvas.height = h;
     context.fillRect(0, 0, w, h);
     context.drawImage(video, 0, 0, w, h);
-    setThumbURL(canvas.toDataURL());
-    console.log(thumbURL);
+    canvas.toBlob((blob) => {
+      const storageRef = ref(
+        storage,
+        "thumbnails/" + fName + currentUser.email
+      );
+
+      uploadBytes(storageRef, blob).then((snapshot) => {
+        getDownloadURL(snapshot.ref).then((thumbURL) => {
+          thumbnailUrl = thumbURL;
+        });
+        console.log("Uploaded a blob or file!");
+      });
+    });
+    return thumU;
   }
 
   async function handleInput(e) {
@@ -70,19 +85,19 @@ function Upload() {
 
   async function uploadNow(e) {
     e.preventDefault();
-
+    const Turl = await getThumbnail();
     const metadata = {
       contentType: contentType,
       customMetadata: {
         name: fName,
         uploadedBy: currentUser.displayName,
         email: currentUser.email,
-        thumbnail: "",
+        thumbnail: Turl,
       },
     };
     if (file !== "") {
       console.log(file);
-      const storageRef = ref(storage, "videos/" + fName);
+      const storageRef = ref(storage, "videos/" + fName + currentUser.email);
       const uploadTask = uploadBytesResumable(storageRef, file, metadata);
       setuploadEvent({
         currState: "",
@@ -153,7 +168,20 @@ function Upload() {
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            setDoc(doc(db, "videos", fName + currentUser.email), {
+              videoName: fName,
+              url: downloadURL,
+              uploadedBy: currentUser.displayName,
+              email: currentUser.email,
+              thumbnail: thumbnailUrl,
+              duration: document.getElementById("video").duration,
+              views:0,
+              likes:0,
+              dislikes:0
+            });
+            console.log(document.getElementById("video").duration);
             console.log("File available at", downloadURL);
+            console.log("thumbnail available at", thumbnailUrl);
             setuploading("Done!!!");
             setuploadChange("choose diffrent video to upload");
             document.getElementById("submit").disabled = true;
@@ -172,7 +200,7 @@ function Upload() {
   }
   return (
     <>
-      <div class="relative min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 bg-gray-500 bg-no-repeat bg-cover relative items-center">
+      <div class="h-screen relative min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 bg-gray-500 bg-no-repeat bg-cover relative items-center">
         <div class="absolute bg-black opacity-60 inset-0 z-0"></div>
         <div class="sm:max-w-lg w-full p-4 px-16 bg-white rounded-xl z-10">
           <div class="text-center">
@@ -192,6 +220,7 @@ function Upload() {
                 id="name"
                 placeholder="enter your meme name"
                 onChange={getName}
+                maxLength="25"
                 required
               />
             </div>
@@ -286,17 +315,10 @@ function Upload() {
                 cancel
               </button>
             )}
-            <button
-              class="m-2 flex justify-center bg-yellow-500 rounded-full text-gray-100 px-4 py-2 tracking-wide
-                                      focus:outline-none focus:shadow-outline hover:bg-yellow-600 shadow-lg cursor-pointer transition ease-in duration-300"
-              onClick={getThumbnail}
-            >
-              snap
-            </button>
           </div>
         </div>
       </div>
-      <canvas id="canvas"></canvas>
+      <canvas class="hidden" id="canvas"></canvas>
     </>
   );
 }

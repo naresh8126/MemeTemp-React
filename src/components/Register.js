@@ -27,7 +27,7 @@ function Register() {
   return (
     <div>
       <body>
-        <section class="min-h-screen flex items-stretch text-white ">
+        <section class="min-h-screen flex items-stretch text-white h-screen">
           <div class="lg:flex w-1/2 hidden bg-gray-500 bg-no-repeat bg-cover relative items-center">
             <div class="absolute bg-black opacity-60 inset-0 z-0"></div>
             <div class="w-full px-24 z-10">

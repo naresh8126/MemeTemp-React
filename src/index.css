@@ -6,7 +6,8 @@
 
 }
 body{
-  background-color: #e5e7ea;
+  background-color: #374151
+  ;
 }
 .dropdown:focus-within .dropdown-menu {
   opacity:1;

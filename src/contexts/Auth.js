@@ -8,9 +8,9 @@ import {
   createUserWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import { useHistory } from "react-router";
-
+import Alert from "../components/Alert";
 const provider = new GoogleAuthProvider();
 const db = getFirestore();
 const AuthContext = React.createContext();
@@ -23,9 +23,7 @@ export function AuthProvider({ children }) {
   const history = useHistory();
   const auth = getAuth();
   const [currentUser, setcurrentUser] = useState("");
-  
- 
- 
+
   async function signWthGoogle() {
     const result = await signInWithPopup(auth, provider);
     try {
@@ -38,30 +36,24 @@ export function AuthProvider({ children }) {
         email: user.email,
       });
       console.log(user);
-
       console.log("user logged in by google");
       history.push("/");
     } catch (error) {
-      const errorCode = error.code;
       const errorMessage = error.message;
-      // The email of the user's account used.
-      const email = error.email;
-      // The AuthCredential type that was used.
-      const credential = GoogleAuthProvider.credentialFromError(error);
-      console.log(errorMessage);
+      alert(errorMessage);
     }
   }
-  const Login = async (email, password) => {
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-    try {
-      console.log("user logged in", userCredential.user);
-    } catch (error) {
-      const errorMessage = error.message;
-    }
+  const Login = (email, password) => {
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        console.log("user logged in", userCredential.user);
+
+        history.push("/");
+      })
+      .catch((error) => {
+        const errorMessage = error.message;
+        alert(errorMessage);
+      });
   };
   const Register = async (username, email, password) => {
     const result = await createUserWithEmailAndPassword(auth, email, password);
@@ -74,25 +66,30 @@ export function AuthProvider({ children }) {
       console.log("user registered", result.user);
     } catch (error) {
       const errorMessage = error.message;
+      alert(errorMessage);
     }
   };
-  const SignOut = async () => {
-    try {
-      await signOut(auth);
-      history.push("/");
-      setcurrentUser("")
-      console.log("logged out");
-    } catch (error) {
-      console.log(error);
-    }
+  const SignOut = () => {
+    signOut(auth)
+      .then((userCredential) => {
+        history.push("/");
+        setcurrentUser("");
+        console.log("logged out");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        alert(errorMessage);
+        // ..
+      });
   };
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
       if (user) {
         setcurrentUser(auth.currentUser);
-        console.log(auth.currentUser)
+        console.log(auth.currentUser);
       } else {
-        console.log("no user logged in")
+        console.log("no user logged in");
       }
     });
   }, []);

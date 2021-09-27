@@ -6,7 +6,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Upload from "./components/Upload";
 import { AuthProvider } from "./contexts/Auth";
-
+import Video from './components/Video'
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import React from "react";
 import About from "./components/About";
@@ -19,17 +19,20 @@ function App() {
           <div class="container mx-auto">
             <Nav />
             <Switch>
-              <Route exact path="/login">
-                <Login />
-              </Route>
-              <Route exact path="/upload">
+              <Route  path="/upload">
                 <Upload />
               </Route>
-              <Route exact path="/about">
+              <Route  path="/about">
                 <About />
               </Route>
-              <Route exact path="/register">
+              <Route  path="/register">
                 <Register />
+              </Route>
+              <Route  path="/login">
+                <Login />
+              </Route>
+              <Route  path="/video/:name">
+                <Video/>
               </Route>
               <Route exact path="/">
                 <Main />

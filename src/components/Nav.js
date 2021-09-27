@@ -5,10 +5,16 @@ import "./css/nav.css";
 import { useAuth } from "../contexts/Auth";
 import Dropdown from "./Dropdown";
 import pic from "./user.png";
+import { useMediaQuery } from "react-responsive";
 
 const Nav = () => {
   const { currentUser, SignOut } = useAuth();
   const [navtoggle, setnavtoggle] = useState("");
+  const isTabletOrMobile = useMediaQuery({ query: "(max-width: 750px)" });
+  const isDesktopOrLaptop = useMediaQuery({
+    query: "(min-width: 750px)",
+  });
+
   const toggleNav = () => {
     if (navtoggle === "") {
       setnavtoggle("active");
@@ -20,15 +26,46 @@ const Nav = () => {
   const ProfileMenu = () => {
     return (
       <>
-        <button className="rounded-lg hover:bg-gray-200 align-middle px-2 font-medium text-left w-full h-8">
-          {currentUser === null || currentUser === undefined ? "Profile" : currentUser.displayName}
+        <button className="rounded-lg hover:bg-gray-200 align-middle px-2 font-medium text-left w-full h-8 text-black">
+          {currentUser === null || currentUser === undefined
+            ? "Profile"
+            : currentUser.displayName}
         </button>
+        {isTabletOrMobile && (
+          <>
+            <NavLink
+              activeClassName="active"
+              exact
+              to="/"
+              className="inline-block rounded-lg hover:bg-gray-200 bg-transparent align-middle px-2 font-medium text-left w-full h-8 text-black"
+            >
+              home
+            </NavLink>
+            <NavLink
+              activeClassName="active"
+              exact
+              to="/upload"
+              className="inline-block rounded-lg hover:bg-gray-200 bg-transparent align-middle px-2 font-medium text-left w-full h-8 text-black"
+            >
+              upload
+            </NavLink>
+            <NavLink
+              activeClassName="active"
+              exact
+              to="/about"
+              className="inline-block rounded-lg hover:bg-gray-200 bg-transparent align-middle px-2 font-medium text-left w-full h-8 text-black"
+            >
+              about
+            </NavLink>
+          </>
+        )}
+        {isDesktopOrLaptop && <></>}
         <hr />
         <button
-          className="rounded-lg border-t-2 border-fuchsia-600 hover:bg-gray-200 align-middle px-2 font-medium text-left w-full h-8"
+          className="rounded-lg border-t-2 border-fuchsia-600 hover:bg-gray-200  align-middle px-2 font-medium text-left w-full h-8 text-red-600"
           onClick={SignOut}
         >
-          log out
+          Log Out
         </button>
       </>
     );
@@ -66,11 +103,23 @@ const Nav = () => {
               </div>
             </ul>
           </div>
-          <div className={`hamburger ${navtoggle}`} onClick={toggleNav}>
+          {/* <div className={`hamburger ${navtoggle}`} onClick={toggleNav}>
             <span className="bar"></span>
             <span className="bar"></span>
             <span className="bar"></span>
-          </div>
+          </div> */}
+
+          {isTabletOrMobile &&
+            (currentUser === "" ? (
+              <>
+                <Btn color="green" name="Login" to="/login" />
+              </>
+            ) : (
+              <>
+                {}
+                <Dropdown profilePic={pic} content={<ProfileMenu />} />
+              </>
+            ))}
         </nav>
       </header>
     </>
