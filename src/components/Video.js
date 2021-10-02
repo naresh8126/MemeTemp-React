@@ -29,16 +29,24 @@ function Video() {
     querySnapshot.forEach((doc) => {
       d.push(doc.data());
     });
+    shuffleArray(d);
     setSideData([...d]);
   };
-
+  function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+  }
   async function getdata() {
     let { name } = d;
     const docRef = doc(db, "videos", name);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      console.log("Document data: " + docSnap.data());
+      console.log("Document data: " + docSnap.data().videoName);
       addView(
         docSnap.data().videoName + docSnap.data().email,
         docSnap.data().views
@@ -62,35 +70,48 @@ function Video() {
   return (
     <>
       {/*  */}
-      <div className=" flex flex-col sm:flex-row bg-gray-300 sm:p-8">
-        <div className="w-full mb-8 sm:w-1/2">
+      <div className=" flex flex-col md:flex-row bg-gray-200 md:p-8">
+        <div className="w-full mb-8 md:w-1/2">
           {/* <video className="bg-red-300 w-full" src=""></video> */}
           {data === undefined ? (
             ""
           ) : (
-            <video
-              className="bg-red-300 w-full"
-              controls
-              src={data.url}
-            ></video>
+            <div>
+              <div
+                className="flex items-center justify-center bg-gray-900 w-full md:h-96"
+                
+              >
+                <video className="h-60 md:h-full" controls src={data.url} controlsList="nodownload"></video>
+              </div>
+
+              <div className="p-2">
+                <div className="text-lg font-medium">{data.videoName}</div>
+                <div className="flex">
+                  {" "}
+                  <div className="">@{data.uploadedBy}</div>
+                  <div className="">- views {data.views}</div>
+                </div>
+              </div>
+            </div>
           )}
-          <div className="">information</div>
         </div>
-        <div className="w-full  sm:w-1/2 sm:p-4 sm:p-12 sm:pr-0 sm:pt-0">
+        <div className="w-full  md:w-1/2 md:p-4 md:p-12 md:pr-0 md:pt-0">
           {sidedata === undefined
             ? ""
             : sidedata.map((vid) => {
                 return (
                   <Link
-                    onClick={getdata}
                     to={"/video/" + vid.videoName + vid.email}
-                    className="sm:hover:bg-gray-400 p-2 sm:flex w-full h-36 mb-4"
+                    className="md:hover:bg-gray-400 p-2 md:flex w-full h-36 mb-4"
+                    onClick={getdata}
                   >
-                    <img
-                      alt=""
-                      className="bg-red-300 sm:h-34 sm:w-auto w-full"
-                      src={vid.thumbnail}
-                    />
+                    <div
+                      className="flex items-center justify-center bg-gray-900  md:h-auto md:w-60"
+                      // style={{ width: "370px", height: "200px" }}
+                    >
+                      <img alt="" className="  h-full" src={vid.thumbnail} />
+                    </div>
+
                     <div className="p-2">
                       <div className="text-lg font-medium">{vid.videoName}</div>
                       <div className="">@{vid.uploadedBy}</div>

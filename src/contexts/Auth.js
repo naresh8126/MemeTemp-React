@@ -74,7 +74,7 @@ export function AuthProvider({ children }) {
       .then((userCredential) => {
         history.push("/");
         setcurrentUser("");
-        console.log("logged out");
+        console.log("logged out :"+auth.currentUser);
       })
       .catch((error) => {
         const errorCode = error.code;

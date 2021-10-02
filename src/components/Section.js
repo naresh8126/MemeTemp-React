@@ -1,29 +1,65 @@
 import Card from "./Card";
-
-import { collection, getDocs, getFirestore } from "firebase/firestore";
+import InfiniteScroll from "react-infinite-scroll-component";
+import {
+  collection,
+  getDocs,
+  getFirestore,
+  limit,
+  query,
+  startAfter,
+} from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 const Section = () => {
- 
-  const [data, setData] = useState(
-    []
-  );
+  const [data, setData] = useState([]);
   const db = getFirestore();
+
   const getdata = async () => {
-    const querySnapshot = await getDocs(collection(db, "videos"));
-    let d = []
-    querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      // setData([...data, doc.data()]);
-      d.push(doc.data())
+    const first = query(collection(db, "videos")); 
+    // const first = query(collection(db, "videos"), limit(20)); 
+    const data = await getDocs(first);
+    let d = [];
+    const lastVisible = data.docs[data.docs.length - 1];
+    const next = query(
+      collection(db, "videos"),
+      startAfter(lastVisible),
+      limit(2)
+    );
+    const nextData = await getDocs(next);
+
+    data.forEach((doc) => {
+      d.push(doc.data());
     });
-    setData([...d])
+
+    nextData.forEach((ndata) => {
+      d.push(ndata.data());
+    });
+    console.log(nextData);
+    shuffleArray(d);
+    setData([...d]);
   };
+
+  function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+  }
   useEffect(() => {
     getdata();
   }, []);
+
   return (
     <>
+      {/* <InfiniteScroll
+        className="bg-gray-100"
+        dataLength={data.length}
+        next={getdata}
+        hasMore={true}
+        loader={<h4>Loading...</h4>}
+      > */}
       <div class="grid grid-cols-1 2xl:grid-cols-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-8 bg-gray-100">
         {data.map((e) => {
           return (
@@ -41,8 +77,9 @@ const Section = () => {
             />
           );
         })}
-        {console.log(data)}
+        <button onClick={getdata}>load more</button>
       </div>
+      {/* </InfiniteScroll> */}
     </>
   );
 };

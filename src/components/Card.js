@@ -1,17 +1,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-
 function Card(props) {
-  
   return (
     <div>
       <Link
         to={"/video/" + props.name + props.email}
-        
-        class=" each mb-10 sm:m-2 border border-gray-200 bg-gray-100 relative block duration-500  transition-all hover:shadow-lg hover:border-purple-800 "
+        class=" each mb-10 sm:m-2 border border-gray-200 bg-gray-100 relative block duration-500  transition-all  hover:border-purple-800 "
       >
-        <img class="w-full hover:scale-105" src={props.thumbnail} alt="" />
+        <div
+          className="flex items-center justify-center bg-gray-900"
+          style={{ width: "100%", height: "200px" }}
+        >
+          <img class="h-full" src={props.thumbnail} alt="" />
+        </div>
         <div class="badge absolute top-0 right-0 bg-indigo-500 m-1 text-gray-200 p-1 px-2 text-xs font-bold rounded">
           {props.duration}s
         </div>

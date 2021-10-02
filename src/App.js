@@ -7,20 +7,26 @@ import Register from "./components/Register";
 import Upload from "./components/Upload";
 import { AuthProvider } from "./contexts/Auth";
 import Video from './components/Video'
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route,Redirect } from "react-router-dom";
 import React from "react";
 import About from "./components/About";
+import {
+  getAuth,
 
+} from "firebase/auth";
 function App() {
+  const auth = getAuth()
+  console.log(auth.currentUser)
   return (
     <>
       <Router>
         <AuthProvider>
-          <div class="container mx-auto">
+          <div class="">
             <Nav />
             <Switch>
               <Route  path="/upload">
-                <Upload />
+              {auth.currentUser ? <Upload /> : <Redirect to="/login" />}
+               
               </Route>
               <Route  path="/about">
                 <About />
@@ -38,6 +44,9 @@ function App() {
                 <Main />
               </Route>
               <Route>
+                <Main />
+              </Route>
+              <Route path="search?q">
                 <Main />
               </Route>
             </Switch>
