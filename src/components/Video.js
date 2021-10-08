@@ -92,7 +92,9 @@ function Video() {
                   <div className="">- views {data.views}</div>
                 </div>
               </div>
+              <hr />
             </div>
+
           )}
         </div>
         <div className="w-full  md:w-1/2 md:p-4 md:p-12 md:pr-0 md:pt-0">

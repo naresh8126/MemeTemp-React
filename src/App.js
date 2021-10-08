@@ -6,17 +6,18 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Upload from "./components/Upload";
 import { AuthProvider } from "./contexts/Auth";
-import Video from './components/Video'
-import { BrowserRouter as Router, Switch, Route,Redirect } from "react-router-dom";
+import Video from "./components/Video";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from "react-router-dom";
 import React from "react";
 import About from "./components/About";
-import {
-  getAuth,
-
-} from "firebase/auth";
+import PrivateRoute from "./components/Private";
+import { getAuth } from "firebase/auth";
 function App() {
-  const auth = getAuth()
-  console.log(auth.currentUser)
   return (
     <>
       <Router>
@@ -24,21 +25,18 @@ function App() {
           <div class="">
             <Nav />
             <Switch>
-              <Route  path="/upload">
-              {auth.currentUser ? <Upload /> : <Redirect to="/login" />}
-               
-              </Route>
-              <Route  path="/about">
+              <PrivateRoute component={Upload} path="/upload" exact />
+              <Route path="/about">
                 <About />
               </Route>
-              <Route  path="/register">
-                <Register />
+              <Route path="/register">
+                {!isLoggedIn() ? <Register /> : <Redirect to="/" />}
               </Route>
-              <Route  path="/login">
-                <Login />
+              <Route path="/login">
+                {!isLoggedIn() ? <Login /> : <Redirect to="/" />}
               </Route>
-              <Route  path="/video/:name">
-                <Video/>
+              <Route path="/video/:name">
+                <Video />
               </Route>
               <Route exact path="/">
                 <Main />
@@ -56,6 +54,14 @@ function App() {
       </Router>
     </>
   );
+}
+function isLoggedIn() {
+  const auth = getAuth();
+  if (auth.currentUser) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 export default App;
