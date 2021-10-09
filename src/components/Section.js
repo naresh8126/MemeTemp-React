@@ -1,5 +1,6 @@
 import Card from "./Card";
 import InfiniteScroll from "react-infinite-scroll-component";
+import PulseLoader from "react-spinners/PulseLoader";
 import {
   collection,
   getDocs,
@@ -13,47 +14,11 @@ import { useEffect, useState } from "react";
 const db = getFirestore();
 
 const Section = () => {
-  // const [data, setData] = useState([]);
-  // const getdata = async () => {
-  //   const first = query(collection(db, "videos"));
-  //   // const first = query(collection(db, "videos"), limit(20));
-  //   const data = await getDocs(first);
-  //   let d = [];
-  //   const lastVisible = data.docs[data.docs.length - 1];
-  //   const next = query(
-  //     collection(db, "videos"),
-  //     startAfter(lastVisible),
-  //     limit(2)
-  //   );
-  //   const nextData = await getDocs(next);
-
-  //   data.forEach((doc) => {
-  //     d.push(doc.data());
-  //   });
-
-  //   nextData.forEach((ndata) => {
-  //     d.push(ndata.data());
-  //   });
-  //   console.log(nextData);
-  //   shuffleArray(d);
-  //   setData([...d]);
-  // };
-
-  // function shuffleArray(array) {
-  //   for (var i = array.length - 1; i > 0; i--) {
-  //     var j = Math.floor(Math.random() * (i + 1));
-  //     var temp = array[i];
-  //     array[i] = array[j];
-  //     array[j] = temp;
-  //   }
-  // }
-  // useEffect(() => {
-  //   getdata();
-  // }, []);
-
   const [posts, setPosts] = useState([]);
   const [lastKey, setLastKey] = useState("");
-  const [nextPosts_loading, setNextPostsLoading] = useState(false);
+  const [nextPostsloading, setNextPostsLoading] = useState(false);
+  const [hasMore, sethasMore] = useState(true);
+  const [size, setSize] = useState(0);
 
   useEffect(() => {
     // first 5 posts
@@ -61,44 +26,43 @@ const Section = () => {
       .then((res) => {
         setPosts(res.posts);
         setLastKey(res.lastKey);
+        setSize(res.size)
+        console.log(size)
       })
       .catch((err) => {
         console.log(err);
       });
   }, []);
 
-  const fetchMorePosts = (key) => {
-    console.log("fetch more post ");
-    console.log(key);
+  const fetchMorePosts = async (key) => {
     setNextPostsLoading(true);
-    getDocs(
-      query(
-        collection(db, "videos"),
-        orderBy("views"),
-        startAfter(key),
-        limit(2)
-      )
-    )
-      .then((data) => {
-        console.log("data: " + data);
-        let posts = [];
-        
-        data.forEach((doc) => {
-          console.log(doc.data());
-          posts.push(doc.data());
-          setLastKey(doc.data().videoName + doc.data().email)
-          console.log(lastKey);
-          
-        });
-        function set(post) {
-          setPosts(posts.concat(post));
-          setNextPostsLoading(false);
-          console.log("run");
-        }
-      })
-      .catch((e) => {
-        console.log(e);
+
+    try {
+      const data = await getDocs(
+        query(
+          collection(db, "videos"),
+          limit(4),
+          orderBy("views"),
+          startAfter(key)
+        )
+      );
+      let post = [];
+      data.forEach((doc) => {
+        post.push(doc.data());
+        setLastKey(doc);
       });
+      console.log(posts.length)
+      if (posts.length  !== size) {
+        sethasMore(true)
+      }else{
+        sethasMore(false)
+      }
+      setTimeout(() => {
+        setPosts(posts.concat(post));
+      }, 1500);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const allPosts = (
@@ -126,42 +90,48 @@ const Section = () => {
 
   return (
     <>
-      {/* <InfiniteScroll
+      <InfiniteScroll
         className="bg-gray-100"
-        dataLength={data.length}
-        next={getdata}
-        hasMore={true}
-        loader={<h4>Loading...</h4>}
-      > */}
-      <div class="grid grid-cols-1 2xl:grid-cols-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-8 bg-gray-100">
-        {allPosts}
-        <button onClick={() => fetchMorePosts(lastKey)}>load more</button>
-      </div>
-      {/* </InfiniteScroll> */}
+        dataLength={posts.length}
+        next={() => {
+          fetchMorePosts(lastKey);
+        }}
+        hasMore={hasMore}
+        loader={
+          <div className="p-8" style={{ textAlign: "center" }}>
+            <PulseLoader color={"#667eea"} loading={hasMore} size={20} />
+          </div>
+        }
+        endMessage={<></>}
+      >
+        <div class="grid grid-cols-1 2xl:grid-cols-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-8 bg-gray-100">
+          {allPosts}
+        </div>
+      </InfiniteScroll>
     </>
   );
 };
 
 const postsFirstBatch = async () => {
   try {
+    const getSize = await getDocs(collection(db, "videos"));
+    let size = getSize.size;
     const data = await getDocs(
-      query(collection(db, "videos"), limit(2), orderBy("views"))
+      query(collection(db, "videos"), limit(4), orderBy("views"))
     );
     let posts = [];
     let lastKey = "";
     data.forEach((doc) => {
       console.log(doc.data());
       posts.push(doc.data());
-      lastKey = doc.data().videoName + doc.data().email;
+      lastKey = doc;
       console.log(lastKey);
     });
 
-    return { posts, lastKey };
+    return { posts, lastKey, size };
   } catch (e) {
     console.log(e);
   }
 };
-
-
 
 export default Section;

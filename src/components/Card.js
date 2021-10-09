@@ -23,7 +23,7 @@ function Card(props) {
             {props.likes} Likes
           </span>
           <span class="mr-1 p-1 px-2 font-bold border-l border-gray-400">
-            {props.dislike} Dislikes
+            {props.dislikes} Dislikes
           </span>
         </div>
         <div class="desc p-4 text-gray-800">

@@ -169,6 +169,7 @@ function Upload() {
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             setDoc(doc(db, "videos", fName + currentUser.email), {
+              
               videoName: fName,
               url: downloadURL,
               uploadedBy: currentUser.displayName,
