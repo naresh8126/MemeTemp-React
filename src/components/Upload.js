@@ -17,6 +17,7 @@ function Upload() {
   const [url, setUrl] = useState("");
   let thumU = "";
   const [file, setFile] = useState("");
+  const [upProgress, setUpProgress] = useState(0)
   const [uploadEvent, setuploadEvent] = useState({
     currState: "",
     pause: "",
@@ -61,7 +62,7 @@ function Upload() {
 
   async function handleInput(e) {
     files = await e.target.files[0];
-    if (files.size > 22097152) {
+    if (files.size > 52428800) {
       setuploadChange("File is too big!");
       document.getElementById("submit").disabled = true;
       e.value = "";
@@ -137,7 +138,7 @@ function Upload() {
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           console.log("Upload is " + parseInt(progress) + "% done");
           setuploading("Uploading " + parseInt(progress) + "%");
-
+          setUpProgress(parseInt(progress))
           switch (snapshot.state) {
             case "paused":
               console.log("Upload is paused");
@@ -169,16 +170,15 @@ function Upload() {
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             setDoc(doc(db, "videos", fName + currentUser.email), {
-              
               videoName: fName,
               url: downloadURL,
               uploadedBy: currentUser.displayName,
               email: currentUser.email,
               thumbnail: thumbnailUrl,
               duration: document.getElementById("video").duration,
-              views:0,
-              likes:0,
-              dislikes:0
+              views: 0,
+              likes: 0,
+              dislikes: 0,
             });
             console.log(document.getElementById("video").duration);
             console.log("File available at", downloadURL);
@@ -221,7 +221,7 @@ function Upload() {
                 id="name"
                 placeholder="enter your meme name"
                 onChange={getName}
-                maxLength="25"
+                maxLength="40"
                 required
               />
             </div>
@@ -247,9 +247,9 @@ function Upload() {
                     </div>
                     {url === ""
                       ? ""
-                      : `File size is ${(file.size / 1000 / 1000).toFixed(
-                          2
-                        )}MB`}
+                      : `File size is ${(file.size / 1000 / 1000).toFixed(2)}MB
+                        
+                        `}
                     <p class="pointer-none text-gray-500 ">
                       {url === "" ? (
                         <span class="text-sm">Drag and drop files here</span>
@@ -270,9 +270,25 @@ function Upload() {
                 </label>
               </div>
             </div>
+            {url === "" ? (
+              ""
+            ) : (
+              <div className="text-gray-400 w-full text-center">
+                Play and Puase at a frame to choose thumbnail
+              </div>
+            )}
+
             <p class="text-sm text-gray-800">
               <span>{uploading}</span>
             </p>
+            {uploadEvent.currState === ""?"":<div class="overflow-hidden h-2 text-xs flex rounded bg-purple-200">
+              <div
+                style={{width:upProgress+"%"}}
+                class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-500"
+              ></div>
+            </div>}
+            
+
             <div>
               <button
                 type="submit"
@@ -285,13 +301,13 @@ function Upload() {
               </button>
             </div>
           </form>
-          <div className="flex">
+          <div className="flex w-full justify-center">
             {uploadEvent.currState === "" ? (
               ""
             ) : uploadEvent.currState === "running" ? (
               <button
                 class="my-2 flex justify-center bg-green-500 rounded-full text-gray-100 px-4 py-2 tracking-wide
-                                      focus:outline-none focus:shadow-outline hover:bg-red-600 shadow-lg cursor-pointer transition ease-in duration-300"
+                                      focus:outline-none focus:shadow-outline hover:bg-red-600 shadow-lg cursor-pointer transition ease-in duration-300 w-2/4"
                 onClick={uploadEvent.pause}
               >
                 pause
@@ -299,7 +315,7 @@ function Upload() {
             ) : (
               <button
                 class="my-2 flex justify-center bg-green-500 rounded-full text-gray-100 px-4 py-2 tracking-wide
-                                      focus:outline-none focus:shadow-outline hover:bg-red-600 shadow-lg cursor-pointer transition ease-in duration-300"
+                                      focus:outline-none focus:shadow-outline hover:bg-red-600 shadow-lg cursor-pointer transition ease-in duration-300 w-2/4"
                 onClick={uploadEvent.resume}
               >
                 resume
@@ -310,7 +326,7 @@ function Upload() {
             ) : (
               <button
                 class="m-2 flex justify-center bg-red-500 rounded-full text-gray-100 px-4 py-2 tracking-wide
-                                      focus:outline-none focus:shadow-outline hover:bg-red-600 shadow-lg cursor-pointer transition ease-in duration-300"
+                                      focus:outline-none focus:shadow-outline hover:bg-red-600 shadow-lg cursor-pointer transition ease-in duration-300 w-2/4"
                 onClick={uploadEvent.cancel}
               >
                 cancel

@@ -8,6 +8,8 @@ import {
   getDocs,
   getFirestore,
 } from "firebase/firestore";
+import { BsWifi2 } from 'react-icons/bs';
+
 
 function Video() {
   const db = getFirestore();
@@ -77,11 +79,14 @@ function Video() {
             ""
           ) : (
             <div>
-              <div
-                className="flex items-center justify-center bg-gray-900 w-full md:h-96"
-                
-              >
-                <video className="h-60 md:h-full" controls src={data.url} controlsList="nodownload"></video>
+              <div className="flex items-center justify-center bg-gray-900 w-full md:h-96">
+                <video
+                  className="h-60 md:h-full"
+                  autoPlay
+                  controls
+                  src={data.url}
+                  controlsList="nodownload"
+                ></video>
               </div>
 
               <div className="p-2">
@@ -94,7 +99,6 @@ function Video() {
               </div>
               <hr />
             </div>
-
           )}
         </div>
         <div className="w-full  md:w-1/2 md:p-4 md:p-12 md:pr-0 md:pt-0">
@@ -117,7 +121,8 @@ function Video() {
                     <div className="p-2">
                       <div className="text-lg font-medium">{vid.videoName}</div>
                       <div className="">@{vid.uploadedBy}</div>
-                      <div className="">views {vid.views}</div>
+                      <div className="">views {vid.views}  <BsWifi2/></div>
+                    
                     </div>
                   </Link>
                 );
