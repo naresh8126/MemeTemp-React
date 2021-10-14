@@ -13,7 +13,7 @@ import {
 import { useEffect, useState } from "react";
 const db = getFirestore();
 
-const Section = () => {
+const Section = (props) => {
   const [posts, setPosts] = useState([]);
   const [lastKey, setLastKey] = useState("");
   const [nextPostsloading, setNextPostsLoading] = useState(false);
@@ -117,7 +117,7 @@ const postsFirstBatch = async () => {
     const getSize = await getDocs(collection(db, "videos"));
     let size = getSize.size;
     const data = await getDocs(
-      query(collection(db, "videos"), limit(4), orderBy("views"))
+      query(collection(db, "videos"), limit(8), orderBy("views"))
     );
     let posts = [];
     let lastKey = "";

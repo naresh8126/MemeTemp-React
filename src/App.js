@@ -7,6 +7,7 @@ import Register from "./components/Register";
 import Upload from "./components/Upload";
 import { AuthProvider } from "./contexts/Auth";
 import Video from "./components/Video";
+import Profile from "./components/Profile";
 import {
   BrowserRouter as Router,
   Switch,
@@ -26,12 +27,14 @@ function App() {
             <Nav />
             <Switch>
               <PrivateRoute component={Upload} path="/upload" exact />
+              <PrivateRoute component={Profile} path="/profile" exact />
               <Route path="/about">
                 <About />
               </Route>
               <Route path="/register">
                 {!isLoggedIn() ? <Register /> : <Redirect to="/" />}
               </Route>
+              
               <Route path="/login">
                 {!isLoggedIn() ? <Login /> : <Redirect to="/" />}
               </Route>
@@ -41,6 +44,7 @@ function App() {
               <Route exact path="/">
                 <Main />
               </Route>
+            
               <Route>
                 <Main />
               </Route>

@@ -8,11 +8,17 @@ import {
   getDocs,
   getFirestore,
 } from "firebase/firestore";
-import { BsWifi2 } from 'react-icons/bs';
-
-
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
+import { BsDownload } from "react-icons/bs";
+import {
+  AiOutlineLike,
+  AiOutlineDislike,
+  AiOutlineShareAlt,
+} from "react-icons/ai";
+import { IconContext } from "react-icons";
 function Video() {
   const db = getFirestore();
+  const storage = getStorage();
   let { url } = useRouteMatch();
   const d = useParams();
 
@@ -50,7 +56,7 @@ function Video() {
     if (docSnap.exists()) {
       console.log("Document data: " + docSnap.data().videoName);
       addView(
-        docSnap.data().videoName + docSnap.data().email,
+        docSnap.data().videoName + docSnap.data().email.slice(0, -4),
         docSnap.data().views
       );
 
@@ -69,6 +75,29 @@ function Video() {
     getdata();
     get();
   }, []);
+
+  const download = (name) => {
+    getDownloadURL(ref(storage, "videos/" + name))
+      .then((url) => {
+        
+        var link = document.createElement("a");
+        if (link.download !== undefined) {
+          link.setAttribute("href", url);
+          link.setAttribute(
+            'download',
+            url,
+          );
+        
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   return (
     <>
       {/*  */}
@@ -91,10 +120,37 @@ function Video() {
 
               <div className="p-2">
                 <div className="text-lg font-medium">{data.videoName}</div>
-                <div className="flex">
+                <div className="flex sm:justify-between flex-col sm:flex-row">
                   {" "}
-                  <div className="">@{data.uploadedBy}</div>
-                  <div className="">- views {data.views}</div>
+                  <div>
+                    <div className="">
+                      <span className="text-red-700">@</span>
+                      {data.uploadedBy}
+                    </div>
+                    <div className="">{data.views} views</div>
+                  </div>
+                  <div className="flex items-center text-gray-500">
+                    <IconContext.Provider
+                      value={{
+                        color: "gray",
+                        size: "40px",
+                        className: "hover:bg-gray-300 p-2 rounded-lg m-1",
+                      }}
+                    >
+                      <>
+                        <AiOutlineLike />
+                        {data.likes}
+                        <AiOutlineDislike />
+                        {data.dislikes}
+                        <AiOutlineShareAlt />
+                        <BsDownload
+                          onClick={() => {
+                            download(data.videoName + data.email.slice(0, -4));
+                          }}
+                        />
+                      </>
+                    </IconContext.Provider>
+                  </div>
                 </div>
               </div>
               <hr />
@@ -107,8 +163,8 @@ function Video() {
             : sidedata.map((vid) => {
                 return (
                   <Link
-                    to={"/video/" + vid.videoName + vid.email}
-                    className="md:hover:bg-gray-400 p-2 md:flex w-full h-36 mb-4"
+                    to={"/video/" + vid.videoName + vid.email.slice(0, -4)}
+                    className="md:hover:bg-gray-300 p-2 md:flex w-full h-36 mb-4"
                     onClick={getdata}
                   >
                     <div
@@ -121,8 +177,7 @@ function Video() {
                     <div className="p-2">
                       <div className="text-lg font-medium">{vid.videoName}</div>
                       <div className="">@{vid.uploadedBy}</div>
-                      <div className="">views {vid.views}  <BsWifi2/></div>
-                    
+                      <div className="">views {vid.views} </div>
                     </div>
                   </Link>
                 );

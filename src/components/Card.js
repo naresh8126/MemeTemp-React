@@ -5,8 +5,8 @@ function Card(props) {
   return (
     <div>
       <Link
-        to={"/video/" + props.name + props.email}
-        class=" each mb-10 sm:m-2 border border-gray-200 bg-gray-100 relative block duration-500  transition-all  hover:border-purple-800 "
+        to={"/video/" + props.name + props.email.slice(0, -4)}
+        class=" each mb-10 sm:m-2 md:border md:border-gray-200 bg-gray-100 relative block duration-500  transition-all  md:hover:border-purple-800 "
       >
         <div
           className="flex items-center justify-center bg-gray-900"

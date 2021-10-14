@@ -6,7 +6,7 @@ import { useAuth } from "../contexts/Auth";
 import Dropdown from "./Dropdown";
 import pic from "./user.png";
 import { useMediaQuery } from "react-responsive";
-
+import { BsUpload } from "react-icons/bs";
 const Nav = () => {
   const { currentUser, SignOut } = useAuth();
   const [navtoggle, setnavtoggle] = useState("");
@@ -26,37 +26,40 @@ const Nav = () => {
   const ProfileMenu = () => {
     return (
       <>
-        <button className="rounded-lg hover:bg-gray-200 align-middle px-2 font-medium text-left w-full h-8 text-black">
+        <Link
+          to="/profile"
+          className="inline-block rounded-lg hover:bg-gray-200 bg-transparent align-middle px-2 font-medium text-left w-full h-8 text-black"
+        >
           {currentUser === null || currentUser === undefined
             ? "Profile"
             : currentUser.displayName}
-        </button>
+        </Link>
         {isTabletOrMobile && (
           <>
-            <NavLink
+            {/* <NavLink
               activeClassName="active"
               exact
               to="/"
               className="inline-block rounded-lg hover:bg-gray-200 bg-transparent align-middle px-2 font-medium text-left w-full h-8 text-black"
             >
               home
-            </NavLink>
+            </NavLink> */}
             <NavLink
-              activeClassName="active"
               exact
               to="/upload"
-              className="inline-block rounded-lg hover:bg-gray-200 bg-transparent align-middle px-2 font-medium text-left w-full h-8 text-black"
+              className="inline-block rounded-lg hover:bg-gray-200 bg-transparent align-middle px-2 font-medium text-left w-full h-8 text-black flex items-center	"
             >
               upload
+              <BsUpload className="mx-2" />
             </NavLink>
-            <NavLink
+            {/* <NavLink
               activeClassName="active"
               exact
               to="/about"
               className="inline-block rounded-lg hover:bg-gray-200 bg-transparent align-middle px-2 font-medium text-left w-full h-8 text-black"
             >
               about
-            </NavLink>
+            </NavLink> */}
           </>
         )}
         {isDesktopOrLaptop && <></>}
@@ -74,29 +77,51 @@ const Nav = () => {
     <>
       <header className="header">
         <nav className="navbar">
-          <Link to="/" className="nav-logo">
+          <Link to="/" className="nav-logo hover:text-gray-100">
             MemeTemp
           </Link>
           <div className="links">
             <ul className={`nav-menu ${navtoggle}`}>
-              <Navlinks name="Home" activeClassName="active" to="/" />
-              <Navlinks name="About" activeClassName="active" to="/about" />
-              <Navlinks name="Upload" activeClassName="active" to="/upload" />
-              <Navlinks
+              {/* <Navlinks name="Home" activeClassName="active" to="/" /> */}
+              {/* <Navlinks name="About" activeClassName="active" to="/about" /> */}
+
+              <li>
+                <NavLink
+                  className="nav-item"
+                  exact
+                  to="/"
+                  activeClassName="active"
+                >
+                  Home
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  className="nav-item"
+                  exact
+                  to="/upload"
+                  activeClassName="active"
+                >
+                  <BsUpload className="mr-2" /> Upload
+                </NavLink>
+              </li>
+
+              {/* <Navlinks
                 name="Category"
                 activeClassName="active"
                 to="/category"
-              />
+              /> */}
 
               <div class="flex mx-auto">
                 {currentUser === "" ? (
-                  <>
-                    <Btn color="green" name="Login" to="/login" />
-                    <Btn color="blue" name="Register" to="/register" />
-                  </>
+                  <Link
+                    to="/register"
+                    class="leading-4 px-4 py-2 m-2  text-sm font-medium border  transition text-blue-600 bg-transparent	 border-blue-600 hover:text-gray-100 hover:bg-blue-600 transform motion-reduce:transform-none"
+                  >
+                    SignUp
+                  </Link>
                 ) : (
                   <>
-                    {}
                     <Dropdown profilePic={pic} content={<ProfileMenu />} />
                   </>
                 )}
@@ -112,7 +137,12 @@ const Nav = () => {
           {isTabletOrMobile &&
             (currentUser === "" ? (
               <>
-                <Btn color="green" name="Login" to="/login" />
+                <Link
+                  to="/login"
+                  class="leading-4 px-4 py-2 m-2  text-sm font-medium border  transition text-green-600 bg-transparent	 border-green-600 hover:text-gray-100 hover:bg-green-600 transform motion-reduce:transform-none"
+                >
+                  Login
+                </Link>
               </>
             ) : (
               <>
@@ -129,8 +159,8 @@ const Nav = () => {
 const Navlinks = (props) => {
   return (
     <>
-      <li className="nav-item">
-        <NavLink exact to={props.to} className="nav-link">
+      <li>
+        <NavLink exact to={props.to} activeClassName={props.activeClassName}>
           {props.name}
         </NavLink>
       </li>

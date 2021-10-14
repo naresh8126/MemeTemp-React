@@ -5,7 +5,7 @@ import Hero from "./Hero";
 function Main() {
   return (
     <div>
-      <Hero />
+      {/* <Hero /> */}
       <Section/>
       
     </div>

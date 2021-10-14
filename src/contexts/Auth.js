@@ -47,7 +47,6 @@ export function AuthProvider({ children }) {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         console.log("user logged in", userCredential.user);
-
         history.push("/");
       })
       .catch((error) => {
@@ -64,6 +63,7 @@ export function AuthProvider({ children }) {
       });
       result.user.displayName = username;
       console.log("user registered", result.user);
+      setcurrentUser(result.user)
     } catch (error) {
       const errorMessage = error.message;
       alert(errorMessage);

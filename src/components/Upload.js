@@ -17,7 +17,7 @@ function Upload() {
   const [url, setUrl] = useState("");
   let thumU = "";
   const [file, setFile] = useState("");
-  const [upProgress, setUpProgress] = useState(0)
+  const [upProgress, setUpProgress] = useState(0);
   const [uploadEvent, setuploadEvent] = useState({
     currState: "",
     pause: "",
@@ -40,21 +40,20 @@ function Upload() {
     ratio = video.videoWidth / video.videoHeight;
     w = video.videoWidth - 100;
     h = parseInt(w / ratio, 10);
-    canvas.width = w;
-    canvas.height = h;
-    context.fillRect(0, 0, w, h);
-    context.drawImage(video, 0, 0, w, h);
+    canvas.width = w*0.5;
+    canvas.height = h*0.5;
+    context.fillRect(0, 0, w*0.5, h*0.5);
+    context.drawImage(video, 0, 0, w*0.5, h*0.5);
     canvas.toBlob((blob) => {
       const storageRef = ref(
         storage,
-        "thumbnails/" + fName + currentUser.email
+        "thumbnails/" + fName + currentUser.email.slice(0, -4)
       );
 
       uploadBytes(storageRef, blob).then((snapshot) => {
         getDownloadURL(snapshot.ref).then((thumbURL) => {
           thumbnailUrl = thumbURL;
         });
-        console.log("Uploaded a blob or file!");
       });
     });
     return thumU;
@@ -75,13 +74,12 @@ function Upload() {
       setfName(document.getElementById("name").value);
       document.getElementById("submit").disabled = false;
       contentType = files.type;
-      console.log(files, url);
+      console.log(files.type);
       setuploadChange("Perfect Upload!!");
     }
   }
   const getName = (e) => {
     setfName(e.target.value);
-    console.log(e.target.value);
   };
 
   async function uploadNow(e) {
@@ -97,8 +95,10 @@ function Upload() {
       },
     };
     if (file !== "") {
-      console.log(file);
-      const storageRef = ref(storage, "videos/" + fName + currentUser.email);
+      const storageRef = ref(
+        storage,
+        "videos/" + fName + currentUser.email.slice(0, -4)
+      );
       const uploadTask = uploadBytesResumable(storageRef, file, metadata);
       setuploadEvent({
         currState: "",
@@ -114,11 +114,9 @@ function Upload() {
             currState: snapshot.state,
             pause: () => {
               uploadTask.pause();
-              console.log("paused");
             },
             resume: () => {
               uploadTask.resume();
-              console.log("resume");
             },
             cancel: () => {
               uploadTask.cancel();
@@ -129,26 +127,24 @@ function Upload() {
                 resume: "",
                 cancel: "",
               });
-              console.log("Upload is canceled");
+
               setuploadChange("canceled Upload again?");
               setuploading("");
             },
           });
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log("Upload is " + parseInt(progress) + "% done");
+
           setuploading("Uploading " + parseInt(progress) + "%");
-          setUpProgress(parseInt(progress))
+          setUpProgress(parseInt(progress));
           switch (snapshot.state) {
             case "paused":
-              console.log("Upload is paused");
               setuploadChange("paused");
               setuploading("paused " + parseInt(progress) + "%");
               break;
             case "canceled":
               break;
             case "running":
-              console.log("Upload is running");
               setuploadChange("uploading");
               document.getElementById("submit").disabled = true;
               setuploading("uploading " + parseInt(progress) + "%");
@@ -169,7 +165,7 @@ function Upload() {
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setDoc(doc(db, "videos", fName + currentUser.email), {
+            setDoc(doc(db, "videos", fName + currentUser.email.slice(0, -4)), {
               videoName: fName,
               url: downloadURL,
               uploadedBy: currentUser.displayName,
@@ -180,9 +176,7 @@ function Upload() {
               likes: 0,
               dislikes: 0,
             });
-            console.log(document.getElementById("video").duration);
-            console.log("File available at", downloadURL);
-            console.log("thumbnail available at", thumbnailUrl);
+
             setuploading("Done!!!");
             setuploadChange("choose diffrent video to upload");
             document.getElementById("submit").disabled = true;
@@ -192,6 +186,9 @@ function Upload() {
               resume: "",
               cancel: "",
             });
+            setFile("");
+            setUrl("");
+            document.getElementById("name").value = ""
           });
         }
       );
@@ -201,9 +198,9 @@ function Upload() {
   }
   return (
     <>
-      <div class="h-screen relative min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 bg-gray-500 bg-no-repeat bg-cover relative items-center">
-        <div class="absolute bg-black opacity-60 inset-0 z-0"></div>
-        <div class="sm:max-w-lg w-full p-4 px-16 bg-white rounded-xl z-10">
+      <div class="h-screen relative min-h-screen flex justify-center bg-gray-500 sm:px-6 lg:px-8 bg-gray-500 bg-no-repeat bg-cover relative md:items-center">
+      <div class="absolute bg-black opacity-60 inset-0 z-0"></div>
+        <div class="sm:max-w-lg w-full p-4 md:p-4 md:px-16 bg-white md:rounded-xl z-10">
           <div class="text-center">
             <h2 class="mt-2 text-3xl font-bold text-gray-900">Meme Upload!</h2>
             <p class="mt-2 text-sm text-gray-400">
@@ -278,16 +275,19 @@ function Upload() {
               </div>
             )}
 
-            <p class="text-sm text-gray-800">
+            {/* <p class="text-sm text-gray-800">
               <span>{uploading}</span>
-            </p>
-            {uploadEvent.currState === ""?"":<div class="overflow-hidden h-2 text-xs flex rounded bg-purple-200">
-              <div
-                style={{width:upProgress+"%"}}
-                class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-500"
-              ></div>
-            </div>}
-            
+            </p> */}
+            {uploadEvent.currState === "" ? (
+              ""
+            ) : (
+              <div class="overflow-hidden h-2 text-xs flex rounded bg-purple-200">
+                <div
+                  style={{ width: upProgress + "%" }}
+                  class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-500"
+                ></div>
+              </div>
+            )}
 
             <div>
               <button
