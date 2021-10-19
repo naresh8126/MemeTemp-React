@@ -9,10 +9,11 @@ import {
   getDownloadURL,
   uploadBytes,
 } from "firebase/storage";
+import { ClipLoader } from "react-spinners";
 
 function Upload() {
   const db = getFirestore();
-  let thumbnailUrl = "";
+let thumbnailUrl=""
   const [uploading, setuploading] = useState("");
   const [url, setUrl] = useState("");
   let thumU = "";
@@ -40,10 +41,10 @@ function Upload() {
     ratio = video.videoWidth / video.videoHeight;
     w = video.videoWidth - 100;
     h = parseInt(w / ratio, 10);
-    canvas.width = w*0.5;
-    canvas.height = h*0.5;
-    context.fillRect(0, 0, w*0.5, h*0.5);
-    context.drawImage(video, 0, 0, w*0.5, h*0.5);
+    canvas.width = w * 0.5;
+    canvas.height = h * 0.5;
+    context.fillRect(0, 0, w * 0.5, h * 0.5);
+    context.drawImage(video, 0, 0, w * 0.5, h * 0.5);
     canvas.toBlob((blob) => {
       const storageRef = ref(
         storage,
@@ -52,7 +53,8 @@ function Upload() {
 
       uploadBytes(storageRef, blob).then((snapshot) => {
         getDownloadURL(snapshot.ref).then((thumbURL) => {
-          thumbnailUrl = thumbURL;
+          thumbnailUrl = thumbURL
+          console.log(thumbURL);
         });
       });
     });
@@ -165,30 +167,51 @@ function Upload() {
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setDoc(doc(db, "videos", fName + currentUser.email.slice(0, -4)), {
-              videoName: fName,
-              url: downloadURL,
-              uploadedBy: currentUser.displayName,
-              email: currentUser.email,
-              thumbnail: thumbnailUrl,
-              duration: document.getElementById("video").duration,
-              views: 0,
-              likes: 0,
-              dislikes: 0,
-            });
+            setTimeout(() => {
+              if (thumbnailUrl) {
+                setDoc(
+                  doc(db, "videos", fName + currentUser.email.slice(0, -4)),
+                  {
+                    videoName: fName,
+                    url: downloadURL,
+                    uploadedBy: currentUser.displayName,
+                    email: currentUser.email,
+                    thumbnail: thumbnailUrl,
+                    duration: document.getElementById("video").duration,
+                    views: 0,
+                    likes: 0,
+                    dislikes: 0,
+                    likers:[],
+                    dislikers:[],
+                    commenters:[]
+                  }
+                );
+                console.log({
+                  videoName: fName,
+                  url: downloadURL,
+                  uploadedBy: currentUser.displayName,
+                  email: currentUser.email,
+                  thumbnail: thumbnailUrl,
+                  duration: document.getElementById("video").duration,
+                  views: 0,
+                  likes: 0,
+                  dislikes: 0,
+                });
 
-            setuploading("Done!!!");
-            setuploadChange("choose diffrent video to upload");
-            document.getElementById("submit").disabled = true;
-            setuploadEvent({
-              currState: "",
-              pause: "",
-              resume: "",
-              cancel: "",
-            });
-            setFile("");
-            setUrl("");
-            document.getElementById("name").value = ""
+                setuploading("Done!!!");
+                setuploadChange("choose diffrent video to upload");
+                document.getElementById("submit").disabled = true;
+                setuploadEvent({
+                  currState: "",
+                  pause: "",
+                  resume: "",
+                  cancel: "",
+                });
+                setFile("");
+                setUrl("");
+                document.getElementById("name").value = "";
+              }
+            }, 3000);
           });
         }
       );
@@ -199,7 +222,7 @@ function Upload() {
   return (
     <>
       <div class="h-screen relative min-h-screen flex justify-center bg-gray-500 sm:px-6 lg:px-8 bg-gray-500 bg-no-repeat bg-cover relative md:items-center">
-      <div class="absolute bg-black opacity-60 inset-0 z-0"></div>
+        <div class="absolute bg-black opacity-60 inset-0 z-0"></div>
         <div class="sm:max-w-lg w-full p-4 md:p-4 md:px-16 bg-white md:rounded-xl z-10">
           <div class="text-center">
             <h2 class="mt-2 text-3xl font-bold text-gray-900">Meme Upload!</h2>
@@ -219,6 +242,7 @@ function Upload() {
                 placeholder="enter your meme name"
                 onChange={getName}
                 maxLength="40"
+                pattern="[^()/><\][\\\x22,;|]+"
                 required
               />
             </div>

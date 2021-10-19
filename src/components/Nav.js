@@ -7,6 +7,7 @@ import Dropdown from "./Dropdown";
 import pic from "./user.png";
 import { useMediaQuery } from "react-responsive";
 import { BsUpload } from "react-icons/bs";
+import Searchbox from './Searchbox'
 const Nav = () => {
   const { currentUser, SignOut } = useAuth();
   const [navtoggle, setnavtoggle] = useState("");
@@ -77,9 +78,10 @@ const Nav = () => {
     <>
       <header className="header">
         <nav className="navbar">
-          <Link to="/" className="nav-logo hover:text-gray-100">
+          <Link to="/" className="nav-logo hover:text-gray-100 text-sm sm:text-base">
             MemeTemp
           </Link>
+          <Searchbox/>
           <div className="links">
             <ul className={`nav-menu ${navtoggle}`}>
               {/* <Navlinks name="Home" activeClassName="active" to="/" /> */}
@@ -147,7 +149,7 @@ const Nav = () => {
             ) : (
               <>
                 {}
-                <Dropdown profilePic={pic} content={<ProfileMenu />} />
+                <Dropdown profilePic="https://firebasestorage.googleapis.com/v0/b/meme--temp.appspot.com/o/user.png?alt=media&token=f2277b5c-42bc-4d33-b658-0a084f1a1041" content={<ProfileMenu />} />
               </>
             ))}
         </nav>

@@ -12,7 +12,7 @@ function Card(props) {
           className="flex items-center justify-center bg-gray-900"
           style={{ width: "100%", height: "200px" }}
         >
-          <img class="h-full" src={props.thumbnail} alt="" />
+          <img class="h-full" src={props.thumbnail} alt="props.name" />
         </div>
         <div class="badge absolute top-0 right-0 bg-indigo-500 m-1 text-gray-200 p-1 px-2 text-xs font-bold rounded">
           {props.duration}s

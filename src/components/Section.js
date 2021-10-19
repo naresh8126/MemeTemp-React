@@ -19,7 +19,7 @@ const Section = (props) => {
   const [nextPostsloading, setNextPostsLoading] = useState(false);
   const [hasMore, sethasMore] = useState(true);
   const [size, setSize] = useState(0);
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     // first 5 posts
     postsFirstBatch()
@@ -28,6 +28,7 @@ const Section = (props) => {
         setLastKey(res.lastKey);
         setSize(res.size)
         console.log(size)
+        setLoading(false)
       })
       .catch((err) => {
         console.log(err);
@@ -90,7 +91,12 @@ const Section = (props) => {
 
   return (
     <>
-      <InfiniteScroll
+    {loading?( <div
+          id="loader"
+          className="bg-gray-100 w-screen h-screen flex justify-center items-center m-0"
+        >
+          <PulseLoader color={"#b5b5b5"} loading={true} size={20} />
+        </div>):( <InfiniteScroll
         className="bg-gray-100"
         dataLength={posts.length}
         next={() => {
@@ -99,15 +105,16 @@ const Section = (props) => {
         hasMore={hasMore}
         loader={
           <div className="p-8" style={{ textAlign: "center" }}>
-            <PulseLoader color={"#667eea"} loading={hasMore} size={20} />
+            <PulseLoader color={"#b5b5b5"} loading={hasMore} size={20} />
           </div>
         }
-        endMessage={<></>}
+        endMessage={<>No more!!</>}
       >
         <div class="grid grid-cols-1 2xl:grid-cols-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-8 bg-gray-100">
           {allPosts}
         </div>
-      </InfiniteScroll>
+      </InfiniteScroll>)}
+     
     </>
   );
 };
