@@ -4,7 +4,7 @@ import { useAuth } from "../contexts/Auth";
 
 function Register() {
   const history = useHistory()
-  const {signWthGoogle, Register, currentUser } = useAuth();
+  const {signWthGoogle, Register } = useAuth();
   const [user, setUser] = React.useState({
     username: "",
     email: "",

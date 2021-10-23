@@ -26,18 +26,43 @@ const Section = (props) => {
       .then((res) => {
         setPosts(res.posts);
         setLastKey(res.lastKey);
-        setSize(res.size)
-        console.log(size)
-        setLoading(false)
+        setSize(res.siz);
+        console.log(size);
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
       });
   }, []);
 
+  const postsFirstBatch = async () => {
+    try {
+      const getSize = await getDocs(collection(db, "videos"));
+      let siz = getSize.size;
+      const data = await getDocs(
+        query(collection(db, "videos"), limit(8), orderBy("views"))
+      );
+      let posts = [];
+      let lastKey = "";
+      data.forEach((doc) => {
+        console.log(doc.data());
+        posts.push(doc.data());
+        lastKey = doc;
+        console.log(lastKey);
+      });
+      if (siz===posts.length) {
+        sethasMore(false)
+      } else {
+        sethasMore(true)
+      }
+      return { posts, lastKey, siz };
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const fetchMorePosts = async (key) => {
     setNextPostsLoading(true);
-
     try {
       const data = await getDocs(
         query(
@@ -52,11 +77,13 @@ const Section = (props) => {
         post.push(doc.data());
         setLastKey(doc);
       });
-      console.log(posts.length)
-      if (posts.length  !== size) {
-        sethasMore(true)
-      }else{
-        sethasMore(false)
+      setSize(size + post.length);
+      console.log(posts.length);
+
+      if (posts.length !== size) {
+        sethasMore(true);
+      } else {
+        sethasMore(false);
       }
       setTimeout(() => {
         setPosts(posts.concat(post));
@@ -91,54 +118,37 @@ const Section = (props) => {
 
   return (
     <>
-    {loading?( <div
+      {loading ? (
+        <div
           id="loader"
-          className="bg-gray-100 w-screen h-screen flex justify-center items-center m-0"
+          className="bg-gray-100 w-full h-screen flex justify-center items-center m-0"
         >
           <PulseLoader color={"#b5b5b5"} loading={true} size={20} />
-        </div>):( <InfiniteScroll
-        className="bg-gray-100"
-        dataLength={posts.length}
-        next={() => {
-          fetchMorePosts(lastKey);
-        }}
-        hasMore={hasMore}
-        loader={
-          <div className="p-8" style={{ textAlign: "center" }}>
-            <PulseLoader color={"#b5b5b5"} loading={hasMore} size={20} />
-          </div>
-        }
-        endMessage={<>No more!!</>}
-      >
-        <div class="grid grid-cols-1 2xl:grid-cols-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-8 bg-gray-100">
-          {allPosts}
         </div>
-      </InfiniteScroll>)}
-     
+      ) : (
+        <InfiniteScroll
+          className="bg-gray-100"
+          dataLength={posts.length}
+          next={() => {
+            fetchMorePosts(lastKey);
+          }}
+          hasMore={hasMore}
+          loader={
+            <div className="p-8" style={{ textAlign: "center" }}>
+              <PulseLoader color={"#b5b5b5"} loading={hasMore} size={20} />
+            </div>
+          }
+          endMessage={<></>}
+        >
+          <div class="grid grid-cols-1 2xl:grid-cols-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-8 bg-gray-100">
+            {allPosts}
+          </div>
+        </InfiniteScroll>
+      )}
     </>
   );
 };
 
-const postsFirstBatch = async () => {
-  try {
-    const getSize = await getDocs(collection(db, "videos"));
-    let size = getSize.size;
-    const data = await getDocs(
-      query(collection(db, "videos"), limit(8), orderBy("views"))
-    );
-    let posts = [];
-    let lastKey = "";
-    data.forEach((doc) => {
-      console.log(doc.data());
-      posts.push(doc.data());
-      lastKey = doc;
-      console.log(lastKey);
-    });
 
-    return { posts, lastKey, size };
-  } catch (e) {
-    console.log(e);
-  }
-};
 
 export default Section;

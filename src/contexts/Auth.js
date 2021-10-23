@@ -58,12 +58,15 @@ export function AuthProvider({ children }) {
     const result = await createUserWithEmailAndPassword(auth, email, password);
     try {
       setDoc(doc(db, "users", email), {
-        username: username,
+        displayName: username,
         email: email,
       });
-      result.user.displayName = username;
+
       console.log("user registered", result.user);
-      setcurrentUser(result.user)
+      setcurrentUser({
+        displayName: username,
+        email: email,
+      });
     } catch (error) {
       const errorMessage = error.message;
       alert(errorMessage);
@@ -74,7 +77,7 @@ export function AuthProvider({ children }) {
       .then((userCredential) => {
         history.push("/");
         setcurrentUser("");
-        console.log("logged out :"+auth.currentUser);
+        console.log("logged out :" + auth.currentUser);
       })
       .catch((error) => {
         const errorCode = error.code;

@@ -10,6 +10,7 @@ import { BsUpload } from "react-icons/bs";
 import Searchbox from './Searchbox'
 const Nav = () => {
   const { currentUser, SignOut } = useAuth();
+  console.log(currentUser)
   const [navtoggle, setnavtoggle] = useState("");
   const isTabletOrMobile = useMediaQuery({ query: "(max-width: 750px)" });
   const isDesktopOrLaptop = useMediaQuery({
@@ -78,10 +79,11 @@ const Nav = () => {
     <>
       <header className="header">
         <nav className="navbar">
-          <Link to="/" className="nav-logo hover:text-gray-100 text-sm sm:text-base">
+          <Link to="/" className="nav-logo hover:text-gray-100 text-base sm:text-base">
             MemeTemp
           </Link>
-          <Searchbox/>
+          {currentUser === ""?"": <Searchbox/>}
+         
           <div className="links">
             <ul className={`nav-menu ${navtoggle}`}>
               {/* <Navlinks name="Home" activeClassName="active" to="/" /> */}

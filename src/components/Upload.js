@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./css/upload.css";
 import { useAuth } from "../contexts/Auth";
-import { doc, setDoc, getFirestore } from "firebase/firestore";
+import { doc, setDoc, getFirestore, FieldValue } from "firebase/firestore";
 import {
   getStorage,
   ref,
@@ -9,11 +9,10 @@ import {
   getDownloadURL,
   uploadBytes,
 } from "firebase/storage";
-import { ClipLoader } from "react-spinners";
 
 function Upload() {
   const db = getFirestore();
-let thumbnailUrl=""
+  let thumbnailUrl = "";
   const [uploading, setuploading] = useState("");
   const [url, setUrl] = useState("");
   let thumU = "";
@@ -53,7 +52,7 @@ let thumbnailUrl=""
 
       uploadBytes(storageRef, blob).then((snapshot) => {
         getDownloadURL(snapshot.ref).then((thumbURL) => {
-          thumbnailUrl = thumbURL
+          thumbnailUrl = thumbURL;
           console.log(thumbURL);
         });
       });
@@ -72,7 +71,9 @@ let thumbnailUrl=""
     } else {
       setUrl(window.URL.createObjectURL(e.target.files[0]));
       setFile(files);
-      document.getElementById("name").value = files.name.slice(0, -4);
+      document.getElementById("name").value = files.name
+        .slice(0, -4)
+        .replace(/[^a-zA-Z ]/g, "");
       setfName(document.getElementById("name").value);
       document.getElementById("submit").disabled = false;
       contentType = files.type;
@@ -80,8 +81,8 @@ let thumbnailUrl=""
       setuploadChange("Perfect Upload!!");
     }
   }
-  const getName = (e) => {
-    setfName(e.target.value);
+  const getName = (event) => {
+    setfName(event.target.value.replace(/[^\w\s]/gi, ""));
   };
 
   async function uploadNow(e) {
@@ -99,7 +100,10 @@ let thumbnailUrl=""
     if (file !== "") {
       const storageRef = ref(
         storage,
-        "videos/" + fName + currentUser.email.slice(0, -4)
+        "videos/" +
+          fName +
+          currentUser.email.slice(0, -4) +"."+
+          file.name.slice((Math.max(0, file.name.lastIndexOf(".")) || Infinity) + 1)
       );
       const uploadTask = uploadBytesResumable(storageRef, file, metadata);
       setuploadEvent({
@@ -181,9 +185,10 @@ let thumbnailUrl=""
                     views: 0,
                     likes: 0,
                     dislikes: 0,
-                    likers:[],
-                    dislikers:[],
-                    commenters:[]
+                    likers: [],
+                    dislikers: [],
+                    commenters: [],
+                    ext: "."+file.name.slice((Math.max(0, file.name.lastIndexOf(".")) || Infinity) + 1)
                   }
                 );
                 console.log({
@@ -196,6 +201,7 @@ let thumbnailUrl=""
                   views: 0,
                   likes: 0,
                   dislikes: 0,
+                  ext: "."+file.name.slice((Math.max(0, file.name.lastIndexOf(".")) || Infinity) + 1)
                 });
 
                 setuploading("Done!!!");
@@ -237,12 +243,14 @@ let thumbnailUrl=""
               </label>
               <input
                 class="text-base p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
-                type=""
+                type="text"
                 id="name"
                 placeholder="enter your meme name"
                 onChange={getName}
-                maxLength="40"
-                pattern="[^()/><\][\\\x22,;|]+"
+                maxLength="60"
+                onkeypress="return ((event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode == 8 || event.charCode == 32 || (event.charCode >= 48 && event.charCode <= 57));"
+                title="No special characters"
+                value={fName}
                 required
               />
             </div>
@@ -285,7 +293,6 @@ let thumbnailUrl=""
                     type="file"
                     accept="video/*"
                     class="hidden"
-                    maxLength=""
                     required
                   />
                 </label>

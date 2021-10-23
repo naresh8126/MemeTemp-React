@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { BsDownload } from "react-icons/bs";
+import DownloadLink from "react-download-link";
 import {
   AiOutlineLike,
   AiOutlineDislike,
@@ -34,7 +35,7 @@ function Video() {
   const [data, setData] = useState();
   const [realTimeData, setRealTimeData] = useState();
   const [sidedata, setSideData] = useState([]);
-
+  const [downl, setdownl] = useState("");
   useEffect(() => {
     let { name } = d;
     onSnapshot(doc(db, "videos", name), (doc) => {
@@ -53,30 +54,26 @@ function Video() {
 
   // like function ======================================================================================
   function addLike() {
-   
-      updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
-        likers: arrayUnion(currentUser.email),
-        dislikers: arrayRemove(currentUser.email),
-      });
-      updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
-        dislikes: data.dislikers.length,
-        likes: data.likers.length,
-      });
-    
+    updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
+      likers: arrayUnion(currentUser.email),
+      dislikers: arrayRemove(currentUser.email),
+    });
+    updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
+      dislikes: data.dislikers.length,
+      likes: data.likers.length,
+    });
   }
 
   // dislike function====================================================================================
   function addDislike() {
-   
-      updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
-        dislikers: arrayUnion(currentUser.email),
-        likers: arrayRemove(currentUser.email),
-      });
-      updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
-        dislikes: data.dislikers.length,
-        likes: data.likers.length,
-      });
-    
+    updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
+      dislikers: arrayUnion(currentUser.email),
+      likers: arrayRemove(currentUser.email),
+    });
+    updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
+      dislikes: data.dislikers.length,
+      likes: data.likers.length,
+    });
   }
 
   // getting side videos data==============================================================================
@@ -99,9 +96,14 @@ function Video() {
   }
 
   // getting main video data==================================================================
-  async function getdata() {
-    let { name } = d;
-    const docRef = doc(db, "videos", name);
+  async function getdata(url) {
+    onSnapshot(doc(db, "videos", url), (doc) => {
+      console.log("Current data: ", doc.data());
+      if (setRealTimeData !== undefined) {
+        setRealTimeData(doc.data());
+      }
+    });
+    const docRef = doc(db, "videos", url);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
@@ -123,27 +125,15 @@ function Video() {
     }
   }
   useEffect(() => {
-    getdata();
+    let { name } = d;
+    getdata(name);
     get();
   }, []);
 
   // download =================================================================================
-  const download = (name) => {
-    getDownloadURL(ref(storage, "videos/" + name))
-      .then((url) => {
-        var link = document.createElement("a");
-        if (link.download !== undefined) {
-          link.setAttribute("href", url);
-          link.setAttribute("download", url);
-
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  const download = (url) => {
+    // setdownl(url)
+    // document.getElementById("downl").click()
   };
 
   return (
@@ -151,7 +141,7 @@ function Video() {
       {loading ? (
         <div
           id="loader"
-          className="bg-gray-100 w-screen h-screen flex justify-center	items-center"
+          className="bg-gray-100 w-full h-screen flex justify-center	items-center"
         >
           <PulseLoader color={"#b5b5b5"} loading={true} size={20} />
         </div>
@@ -225,13 +215,13 @@ function Video() {
 
                           {realTimeData.dislikers.length}
                           <AiOutlineShareAlt />
-                          <BsDownload
-                            onClick={() => {
-                              download(
-                                data.videoName + data.email.slice(0, -4)
-                              );
-                            }}
-                          />
+                          <DownloadLink
+                            filename={data.videoName+data.ext}
+                            exportFile={() => data.url}
+                          >
+                            
+                          <BsDownload />
+                          </DownloadLink>
                         </>
                       </IconContext.Provider>
                     </div>
@@ -248,11 +238,13 @@ function Video() {
                   return (
                     <Link
                       to={"/video/" + vid.videoName + vid.email.slice(0, -4)}
-                      className="md:hover:bg-gray-300 p-2 md:flex w-full h-36 mb-4"
-                      onClick={getdata}
+                      className="md:hover:bg-gray-300 p-2 md:flex w-full h-48 mb-4"
+                      onClick={() => {
+                        getdata(vid.videoName + vid.email.slice(0, -4));
+                      }}
                     >
                       <div
-                        className="flex items-center justify-center bg-gray-900 h-60 md:h-full md:w-1/2"
+                        className="flex items-center justify-center bg-gray-900 h-48  md:h-full md:w-1/2"
                         // style={{ width: "370px", height: "200px" }}
                       >
                         <img alt="" className="h-full" src={vid.thumbnail} />
