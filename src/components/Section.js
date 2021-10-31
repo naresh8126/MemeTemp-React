@@ -27,11 +27,9 @@ const Section = (props) => {
         setPosts(res.posts);
         setLastKey(res.lastKey);
         setSize(res.siz);
-        console.log(size);
         setLoading(false);
       })
       .catch((err) => {
-        console.log(err);
       });
   }, []);
 
@@ -45,10 +43,8 @@ const Section = (props) => {
       let posts = [];
       let lastKey = "";
       data.forEach((doc) => {
-        console.log(doc.data());
         posts.push(doc.data());
         lastKey = doc;
-        console.log(lastKey);
       });
       if (siz===posts.length) {
         sethasMore(false)
@@ -57,7 +53,6 @@ const Section = (props) => {
       }
       return { posts, lastKey, siz };
     } catch (e) {
-      console.log(e);
     }
   };
 
@@ -78,7 +73,6 @@ const Section = (props) => {
         setLastKey(doc);
       });
       setSize(size + post.length);
-      console.log(posts.length);
 
       if (posts.length !== size) {
         sethasMore(true);
@@ -89,7 +83,6 @@ const Section = (props) => {
         setPosts(posts.concat(post));
       }, 1500);
     } catch (e) {
-      console.log(e);
     }
   };
 
@@ -140,7 +133,7 @@ const Section = (props) => {
           }
           endMessage={<></>}
         >
-          <div class="grid grid-cols-1 2xl:grid-cols-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-8 bg-gray-100">
+          <div className="grid grid-cols-1 2xl:grid-cols-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-8 bg-gray-100">
             {allPosts}
           </div>
         </InfiniteScroll>

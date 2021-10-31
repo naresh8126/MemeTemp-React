@@ -3,11 +3,11 @@ import React from "react";
 function Alert(props) {
   return (
     <div>
-      <div class={`alert alert-${props.type} alert-dismissible fade show`} role="alert">
+      <div className={`alert alert-${props.type} alert-dismissible fade show`} role="alert">
         {props.massege}
         <button
           type="button"
-          class="close"
+          className="close"
           data-dismiss="alert"
           aria-label="Close"
         >

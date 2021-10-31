@@ -11,7 +11,9 @@ import {
   arrayRemove,
   onSnapshot,
 } from "firebase/firestore";
-import { getStorage, ref, getDownloadURL } from "firebase/storage";
+import { ToastContainer, toast } from "react-toastify";
+
+import { getStorage } from "firebase/storage";
 import { BsDownload } from "react-icons/bs";
 import DownloadLink from "react-download-link";
 import {
@@ -28,18 +30,16 @@ import { useAuth } from "../contexts/Auth";
 function Video() {
   const { currentUser } = useAuth();
   const db = getFirestore();
-  const storage = getStorage();
-  let { url } = useRouteMatch();
+
   const d = useParams();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState();
   const [realTimeData, setRealTimeData] = useState();
   const [sidedata, setSideData] = useState([]);
-  const [downl, setdownl] = useState("");
+
   useEffect(() => {
     let { name } = d;
     onSnapshot(doc(db, "videos", name), (doc) => {
-      console.log("Current data: ", doc.data());
       setRealTimeData(doc.data());
     });
   }, []);
@@ -54,26 +54,34 @@ function Video() {
 
   // like function ======================================================================================
   function addLike() {
-    updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
-      likers: arrayUnion(currentUser.email),
-      dislikers: arrayRemove(currentUser.email),
-    });
-    updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
-      dislikes: data.dislikers.length,
-      likes: data.likers.length,
-    });
+    try {
+      updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
+        likers: arrayUnion(currentUser.email),
+        dislikers: arrayRemove(currentUser.email),
+      });
+      updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
+        dislikes: data.dislikers.length,
+        likes: data.likers.length,
+      });
+    } catch (error) {
+      toast.error("Please LogIn to like this video");
+    }
   }
 
   // dislike function====================================================================================
   function addDislike() {
-    updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
-      dislikers: arrayUnion(currentUser.email),
-      likers: arrayRemove(currentUser.email),
-    });
-    updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
-      dislikes: data.dislikers.length,
-      likes: data.likers.length,
-    });
+    try {
+      updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
+        dislikers: arrayUnion(currentUser.email),
+        likers: arrayRemove(currentUser.email),
+      });
+      updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
+        dislikes: data.dislikers.length,
+        likes: data.likers.length,
+      });
+    } catch (error) {
+      toast.error("Please LogIn to dislike this video");
+    }
   }
 
   // getting side videos data==============================================================================
@@ -97,8 +105,8 @@ function Video() {
 
   // getting main video data==================================================================
   async function getdata(url) {
+    document.title = url + "IceMemes";
     onSnapshot(doc(db, "videos", url), (doc) => {
-      console.log("Current data: ", doc.data());
       if (setRealTimeData !== undefined) {
         setRealTimeData(doc.data());
       }
@@ -107,7 +115,6 @@ function Video() {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      console.log("Document data: " + docSnap.data().videoName);
       addView(
         docSnap.data().videoName + docSnap.data().email.slice(0, -4),
         docSnap.data().views
@@ -121,7 +128,6 @@ function Video() {
       });
     } else {
       // doc.data() will be undefined in this case
-      console.log("No such document!");
     }
   }
   useEffect(() => {
@@ -138,6 +144,17 @@ function Video() {
 
   return (
     <>
+      <ToastContainer 
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      
+      pauseOnHover
+      />
       {loading ? (
         <div
           id="loader"
@@ -216,11 +233,10 @@ function Video() {
                           {realTimeData.dislikers.length}
                           <AiOutlineShareAlt />
                           <DownloadLink
-                            filename={data.videoName+data.ext}
+                            filename={data.videoName + data.ext}
                             exportFile={() => data.url}
                           >
-                            
-                          <BsDownload />
+                            <BsDownload />
                           </DownloadLink>
                         </>
                       </IconContext.Provider>
@@ -251,9 +267,7 @@ function Video() {
                       </div>
 
                       <div className="p-2 md:w-1/2">
-                        <div className="text-lg font-medium">
-                          {vid.videoName}
-                        </div>
+                        <h6 className="text-lg font-medium">{vid.videoName}</h6>
                         <div className="">@{vid.uploadedBy}</div>
                         <div className="">views {vid.views} </div>
                       </div>

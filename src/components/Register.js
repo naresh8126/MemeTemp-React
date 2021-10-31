@@ -1,10 +1,12 @@
 import React, { useContext } from "react";
-import { Link, Redirect, useHistory} from "react-router-dom";
+import { Link, Redirect, useHistory } from "react-router-dom";
 import { useAuth } from "../contexts/Auth";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function Register() {
-  const history = useHistory()
-  const {signWthGoogle, Register } = useAuth();
+  const history = useHistory();
+  const { signWthGoogle, Register } = useAuth();
   const [user, setUser] = React.useState({
     username: "",
     email: "",
@@ -20,23 +22,39 @@ function Register() {
 
   const addUser = async (e) => {
     e.preventDefault();
-    await Register(user.username, user.email, user.password);
-    history.push("/")
+    const reg = await Register(user.username, user.email, user.password);
+    if (reg) {
+      toast.error(reg.code)
+      
+    }
+    
   };
 
   return (
     <div>
+      <ToastContainer
+       position="top-right"
+       autoClose={4000}
+       hideProgressBar={false}
+       newestOnTop={false}
+       closeOnClick
+       rtl={false}
+       pauseOnFocusLoss
+       
+       pauseOnHover
+      />
       <body>
-        <section class="min-h-screen flex items-stretch text-white h-screen">
-          <div class="lg:flex w-1/2 hidden bg-gray-500 bg-no-repeat bg-cover relative items-center">
-            <div class="absolute bg-black opacity-60 inset-0 z-0"></div>
-            <div class="w-full px-24 z-10">
-              <h1 class="text-5xl font-bold text-left tracking-wide">
-                Keep it special
+        <section className="min-h-screen flex items-stretch text-white h-screen">
+          <div className="lg:flex w-1/2 hidden bg-gray-500 bg-no-repeat bg-cover relative items-center">
+            <div className="absolute bg-black opacity-60 inset-0 z-0"></div>
+            <div className="w-full px-24 z-10">
+              <h1 className="text-5xl font-bold text-left tracking-wide">
+                Keep it special{" "}
+                
               </h1>
-              <p class="text-3xl my-4">memes that makes your video pop up</p>
+              <p className="text-3xl my-4">memes that makes your video pop up</p>
             </div>
-            <div class="bottom-0 absolute p-4 text-center right-0 left-0 flex justify-center space-x-4">
+            <div className="bottom-0 absolute p-4 text-center right-0 left-0 flex justify-center space-x-4">
               <a href="">
                 <svg
                   fill="#fff"
@@ -73,35 +91,41 @@ function Register() {
             </div>
           </div>
           <div
-            class="lg:w-1/2 w-full flex items-center justify-center text-center md:px-16 px-0 z-0"
+            className="lg:w-1/2 w-full flex items-center justify-center text-center md:px-16 px-0 z-0"
             style={{ backgroundColor: "#161616" }}
           >
             <div
-              class="absolute lg:hidden z-10 inset-0 bg-gray-500 bg-no-repeat bg-cover items-center"
+              className="absolute lg:hidden z-10 inset-0 bg-gray-500 bg-no-repeat bg-cover items-center"
               style={{
                 backgroundImage:
                   "url(https://images.unsplash.com/photo-1577495508048-b635879837f1?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=675&q=80)",
               }}
             >
-              <div class="absolute bg-black opacity-60 inset-0 z-0"></div>
+              <div className="absolute bg-black opacity-60 inset-0 z-0"></div>
             </div>
-            <div class="w-full py-6 z-20">
-              <Link to="/" class="text-5xl my-6 font-bold">
-                MemeTemp
+            <div className="w-full py-6 z-20">
+              <Link to="/" className="text-5xl my-6 font-bold">
+                IceMemes
               </Link>
-              <div class="py-6 space-x-2">
-                <button onClick={signWthGoogle}  class="cursor-pointer w-10 h-10 items-center justify-center inline-flex rounded-full font-bold text-lg border-2 border-white">
+              <div className="py-6 space-x-2">
+                <button
+                  onClick={signWthGoogle}
+                  className="cursor-pointer w-10 h-10 items-center justify-center inline-flex rounded-full font-bold text-lg border-2 border-white"
+                >
                   f
                 </button>
-                <button onClick={signWthGoogle} class="cursor-pointer w-10 h-10 items-center justify-center inline-flex rounded-full font-bold text-lg border-2 border-white">
+                <button
+                  onClick={signWthGoogle}
+                  className="cursor-pointer w-10 h-10 items-center justify-center inline-flex rounded-full font-bold text-lg border-2 border-white"
+                >
                   G
                 </button>
               </div>
-              <p class="text-gray-100">or use email your account</p>
+              <p className="text-gray-100">or use email your account</p>
 
-              <div class="sm:w-2/3 w-full px-4 lg:px-0 mx-auto">
+              <div className="sm:w-2/3 w-full px-4 lg:px-0 mx-auto">
                 <form onSubmit={addUser} method="post">
-                  <div class="pb-2 pt-4">
+                  <div className="pb-2 pt-4">
                     <input
                       type="text"
                       name="username"
@@ -109,11 +133,11 @@ function Register() {
                       placeholder="Username"
                       value={user.username}
                       onChange={getdata}
-                      class="block w-full p-4 text-lg rounded-sm bg-black"
+                      className="block w-full p-4 text-lg rounded-sm bg-black"
                       required
                     />
                   </div>
-                  <div class="pb-2 pt-4">
+                  <div className="pb-2 pt-4">
                     <input
                       type="email"
                       name="email"
@@ -121,13 +145,13 @@ function Register() {
                       placeholder="Email"
                       value={user.email}
                       onChange={getdata}
-                      class="block w-full p-4 text-lg rounded-sm bg-black"
+                      className="block w-full p-4 text-lg rounded-sm bg-black"
                       required
                     />
                   </div>
-                  <div class="pb-2 pt-4">
+                  <div className="pb-2 pt-4">
                     <input
-                      class="block w-full p-4 text-lg rounded-sm bg-black"
+                      className="block w-full p-4 text-lg rounded-sm bg-black"
                       type="password"
                       name="password"
                       id="password"
@@ -138,21 +162,21 @@ function Register() {
                     />
                   </div>
 
-                  <div class="px-4 pb-2 pt-4">
+                  <div className="px-4 pb-2 pt-4">
                     <button
-                      class="uppercase block w-full p-4 text-lg rounded-full bg-indigo-500 hover:bg-indigo-600 focus:outline-none"
+                      className="uppercase block w-full p-4 text-lg rounded-full bg-indigo-500 hover:bg-indigo-600 focus:outline-none"
                       type="submit"
                     >
                       Register
                     </button>
-                    <div class=" mt-4 text-left text-gray-400 hover:underline hover:text-gray-100">
+                    <div className=" mt-4 text-left text-gray-400 hover:underline hover:text-gray-100">
                       <Link to="/login">
                         Already have an account? login here
                       </Link>
                     </div>
                   </div>
                 </form>
-                <div class="p-4 text-center right-0 left-0 flex justify-center space-x-4 mt-16 lg:hidden ">
+                <div className="p-4 text-center right-0 left-0 flex justify-center space-x-4 mt-16 lg:hidden ">
                   <a href="#">
                     <svg
                       fill="#fff"

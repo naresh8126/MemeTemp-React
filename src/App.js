@@ -23,7 +23,7 @@ function App() {
     <>
       <Router>
         <AuthProvider>
-          <div class="">
+          <div className="">
             <Nav />
             <Switch>
               <PrivateRoute component={Upload} path="/upload" exact />

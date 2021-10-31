@@ -8,7 +8,7 @@ a {
   text-decoration: none;
 }
 .header {
-  z-index: 999999;
+  z-index: 1;
   position: sticky;
 }
 

@@ -4,7 +4,7 @@ function Modal(props) {
   return (
     <>
       <button
-        class={`leading-4 px-4 py-2 m-2  text-sm font-medium border  transition text-${props.color}-500 bg-transparent	 border-${props.color}-500 hover:text-gray-800 hover:bg-${props.color}-500 transform motion-reduce:transform-none`}
+        className={`leading-4 px-4 py-2 m-2  text-sm font-medium border  transition text-${props.color}-500 bg-transparent	 border-${props.color}-500 hover:text-gray-800 hover:bg-${props.color}-500 transform motion-reduce:transform-none`}
         type="button"
         onClick={() => setShowModal(true)}
       >

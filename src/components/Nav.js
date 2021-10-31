@@ -10,7 +10,7 @@ import { BsUpload } from "react-icons/bs";
 import Searchbox from './Searchbox'
 const Nav = () => {
   const { currentUser, SignOut } = useAuth();
-  console.log(currentUser)
+  
   const [navtoggle, setnavtoggle] = useState("");
   const isTabletOrMobile = useMediaQuery({ query: "(max-width: 750px)" });
   const isDesktopOrLaptop = useMediaQuery({
@@ -32,7 +32,7 @@ const Nav = () => {
           to="/profile"
           className="inline-block rounded-lg hover:bg-gray-200 bg-transparent align-middle px-2 font-medium text-left w-full h-8 text-black"
         >
-          {currentUser === null || currentUser === undefined
+          {currentUser.displayName === null || currentUser.displayName === undefined
             ? "Profile"
             : currentUser.displayName}
         </Link>
@@ -80,7 +80,7 @@ const Nav = () => {
       <header className="header">
         <nav className="navbar">
           <Link to="/" className="nav-logo hover:text-gray-100 text-base sm:text-base">
-            MemeTemp
+            IceMemes
           </Link>
           {currentUser === ""?"": <Searchbox/>}
          
@@ -116,11 +116,11 @@ const Nav = () => {
                 to="/category"
               /> */}
 
-              <div class="flex mx-auto">
+              <div className="flex mx-auto">
                 {currentUser === "" ? (
                   <Link
                     to="/register"
-                    class="leading-4 px-4 py-2 m-2  text-sm font-medium border  transition text-blue-600 bg-transparent	 border-blue-600 hover:text-gray-100 hover:bg-blue-600 transform motion-reduce:transform-none"
+                    className="leading-4 px-4 py-2 m-2  text-sm font-medium border  transition text-blue-600 bg-transparent	 border-blue-600 hover:text-gray-100 hover:bg-blue-600 transform motion-reduce:transform-none"
                   >
                     SignUp
                   </Link>
@@ -143,7 +143,7 @@ const Nav = () => {
               <>
                 <Link
                   to="/login"
-                  class="leading-4 px-4 py-2 m-2  text-sm font-medium border  transition text-green-600 bg-transparent	 border-green-600 hover:text-gray-100 hover:bg-green-600 transform motion-reduce:transform-none"
+                  className="leading-4 px-4 py-2 m-2  text-sm font-medium border  transition text-green-600 bg-transparent	 border-green-600 hover:text-gray-100 hover:bg-green-600 transform motion-reduce:transform-none"
                 >
                   Login
                 </Link>

@@ -3,19 +3,19 @@ import React from "react";
 function Searchbox() {
   return (
     <>
-      <div class="relative text-gray-600 w-1/3">
+      <div className="relative text-gray-600 w-1/3">
         <input
           type="search"
           name="search"
           placeholder="Search"
-          class="hidden sm:block bg-white h-8 px-5 pr-10 rounded-full text-sm focus:outline-none w-full "
+          className="hidden sm:block bg-white h-8 px-5 pr-10 rounded-full text-sm focus:outline-none w-full "
         />
         <button
           type="submit"
-          class="hidden sm:block absolute right-0 top-0 h-full rounded-full hover:bg-gray-300 ml-4 px-4 hover:text-gray-800 "
+          className="hidden sm:block absolute right-0 top-0 h-full rounded-full hover:bg-gray-300 ml-4 px-4 hover:text-gray-800 "
         >
           <svg
-            class="h-4 w-4 fill-current"
+            className="h-4 w-4 fill-current"
             version="1.1"
             id="Capa_1"
             x="0px"
@@ -34,9 +34,9 @@ function Searchbox() {
         <div className="bg-transparent flex flex-col justify-center sm:py-0 sm:hidden">
           <div className="flex items-center justify-center p-2">
             <div className=" relative inline-block text-left dropdown">
-              <button class="sm:block h-full rounded-full hover:bg-gray-300 p-2 text-gray-100 hover:text-gray-800 outline-none">
+              <button className="sm:block h-full rounded-full hover:bg-gray-300 p-2 text-gray-100 hover:text-gray-800 outline-none">
                 <svg
-                  class="h-4 w-4 fill-current"
+                  className="h-4 w-4 fill-current"
                   version="1.1"
                   id="Capa_1"
                   x="0px"
@@ -56,19 +56,19 @@ function Searchbox() {
                   id="headlessui-menu-items-117"
                   role="menu"
                 >
-                  <div class="relative text-gray-600">
+                  <div className="relative text-gray-600">
                     <input
                       type="search"
                       name="search"
                       placeholder="Search"
-                      class="  bg-white h-8 px-5 pr-10 rounded-full text-sm focus:outline-none w-full "
+                      className="  bg-white h-8 px-5 pr-10 rounded-full text-sm focus:outline-none w-full "
                     />
                     <button
                       type="submit"
-                      class=" absolute right-0 top-0 h-full rounded-full hover:bg-gray-300 ml-4 px-4 hover:text-gray-800 "
+                      className=" absolute right-0 top-0 h-full rounded-full hover:bg-gray-300 ml-4 px-4 hover:text-gray-800 "
                     >
                       <svg
-                        class="h-4 w-4 fill-current"
+                        className="h-4 w-4 fill-current"
                         version="1.1"
                         id="Capa_1"
                         x="0px"
