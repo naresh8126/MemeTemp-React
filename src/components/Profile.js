@@ -22,6 +22,7 @@ const db = getFirestore();
 const storage = getStorage();
 const Profile = (props) => {
   const { currentUser } = useAuth();
+  document.title = currentUser.displayName+" - IceMemes"
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 

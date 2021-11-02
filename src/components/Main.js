@@ -6,7 +6,7 @@ function Main() {
   document.title = "IceMemes"
   return (
     <div>
-      {/* <Hero /> */}
+     
       <Section/>
       
     </div>

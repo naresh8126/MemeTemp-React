@@ -5,6 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 
 function Login() {
   const history = useHistory();
+  document.title = "Login - IceMemes"
   const [errorMessage, setErrorMessage] = React.useState("");
   const { signWthGoogle, Login } = useAuth();
   const [user, setUser] = React.useState({
@@ -22,8 +23,26 @@ function Login() {
   const addUser = async (e) => {
     e.preventDefault();
     const log = await Login(user.email, user.password);
+
     if (log) {
-      toast.error(log.code)
+      switch (log.code) {
+        case "auth/email-already-exists":
+          toast.error("Email already exists, please")
+          break;
+        case "auth/user-not-found":
+          toast.error("User not found")
+          break;
+        case "auth/invalid-password":
+          toast.error("Invalid password")
+          break;
+        case "auth/wrong-password":
+          toast.error("Wrong password")
+          break;
+          
+          default:
+          toast.error(log.code)
+          break;
+      }
       
     }
   };

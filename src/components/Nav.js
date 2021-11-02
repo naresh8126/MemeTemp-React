@@ -38,14 +38,7 @@ const Nav = () => {
         </Link>
         {isTabletOrMobile && (
           <>
-            {/* <NavLink
-              activeClassName="active"
-              exact
-              to="/"
-              className="inline-block rounded-lg hover:bg-gray-200 bg-transparent align-middle px-2 font-medium text-left w-full h-8 text-black"
-            >
-              home
-            </NavLink> */}
+           
             <NavLink
               exact
               to="/upload"
@@ -54,14 +47,7 @@ const Nav = () => {
               upload
               <BsUpload className="mx-2" />
             </NavLink>
-            {/* <NavLink
-              activeClassName="active"
-              exact
-              to="/about"
-              className="inline-block rounded-lg hover:bg-gray-200 bg-transparent align-middle px-2 font-medium text-left w-full h-8 text-black"
-            >
-              about
-            </NavLink> */}
+         
           </>
         )}
         {isDesktopOrLaptop && <></>}
@@ -77,18 +63,17 @@ const Nav = () => {
   };
   return (
     <>
-      <header className="header">
+      <header className="header sticky top-0 w-full">
         <nav className="navbar">
-          <Link to="/" className="nav-logo hover:text-gray-100 text-base sm:text-base">
+          <Link to="/" className="nav-logo hover:text-gray-100 text-base sm:text-lg">
             IceMemes
           </Link>
-          {currentUser === ""?"": <Searchbox/>}
-         
+          
           <div className="links">
+          <Searchbox/>
+         
             <ul className={`nav-menu ${navtoggle}`}>
-              {/* <Navlinks name="Home" activeClassName="active" to="/" /> */}
-              {/* <Navlinks name="About" activeClassName="active" to="/about" /> */}
-
+             
               <li>
                 <NavLink
                   className="nav-item"
@@ -119,10 +104,10 @@ const Nav = () => {
               <div className="flex mx-auto">
                 {currentUser === "" ? (
                   <Link
-                    to="/register"
+                    to="/login"
                     className="leading-4 px-4 py-2 m-2  text-sm font-medium border  transition text-blue-600 bg-transparent	 border-blue-600 hover:text-gray-100 hover:bg-blue-600 transform motion-reduce:transform-none"
                   >
-                    SignUp
+                    Log In
                   </Link>
                 ) : (
                   <>

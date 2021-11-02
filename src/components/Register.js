@@ -5,6 +5,7 @@ import { useAuth } from "../contexts/Auth";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 function Register() {
+  document.title = "Register - IceMemes"
   const history = useHistory();
   const { signWthGoogle, Register } = useAuth();
   const [user, setUser] = React.useState({
@@ -24,24 +25,35 @@ function Register() {
     e.preventDefault();
     const reg = await Register(user.username, user.email, user.password);
     if (reg) {
-      toast.error(reg.code)
-      
+      switch (reg.code) {
+        case "auth/email-already-exists":
+          toast.error("Email already exists, please a different Email");
+          break;
+        case "auth/invalid-email":
+          toast.error("Invalid email address");
+          break;
+        case "auth/weak-password":
+          toast.error("Weak Password");
+          break;
+        
+        default:
+          toast.error(reg.code);
+          break;
+      }
     }
-    
   };
 
   return (
     <div>
       <ToastContainer
-       position="top-right"
-       autoClose={4000}
-       hideProgressBar={false}
-       newestOnTop={false}
-       closeOnClick
-       rtl={false}
-       pauseOnFocusLoss
-       
-       pauseOnHover
+        position="top-right"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        pauseOnHover
       />
       <body>
         <section className="min-h-screen flex items-stretch text-white h-screen">
@@ -50,9 +62,10 @@ function Register() {
             <div className="w-full px-24 z-10">
               <h1 className="text-5xl font-bold text-left tracking-wide">
                 Keep it special{" "}
-                
               </h1>
-              <p className="text-3xl my-4">memes that makes your video pop up</p>
+              <p className="text-3xl my-4">
+                memes that makes your video pop up
+              </p>
             </div>
             <div className="bottom-0 absolute p-4 text-center right-0 left-0 flex justify-center space-x-4">
               <a href="">

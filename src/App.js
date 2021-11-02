@@ -17,6 +17,7 @@ import {
 import React from "react";
 import About from "./components/About";
 import PrivateRoute from "./components/Private";
+import SearchSection from './components/SearchSection'
 import { getAuth } from "firebase/auth";
 function App() {
   return (
@@ -45,11 +46,11 @@ function App() {
                 <Main />
               </Route>
             
-              <Route>
+              {/* <Route>
                 <Main />
-              </Route>
-              <Route path="search?q">
-                <Main />
+              </Route> */}
+              <Route path="/search">
+                <SearchSection />
               </Route>
             </Switch>
             {/* <Footer /> */}

@@ -12,10 +12,10 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { ToastContainer, toast } from "react-toastify";
+import { saveAs } from "file-saver";
 
-import { getStorage } from "firebase/storage";
 import { BsDownload } from "react-icons/bs";
-import DownloadLink from "react-download-link";
+
 import {
   AiOutlineLike,
   AiOutlineDislike,
@@ -26,6 +26,7 @@ import {
 import { IconContext } from "react-icons";
 import PulseLoader from "react-spinners/PulseLoader";
 import { useAuth } from "../contexts/Auth";
+import axios from "axios";
 
 function Video() {
   const { currentUser } = useAuth();
@@ -105,7 +106,7 @@ function Video() {
 
   // getting main video data==================================================================
   async function getdata(url) {
-    document.title = url + "IceMemes";
+   
     onSnapshot(doc(db, "videos", url), (doc) => {
       if (setRealTimeData !== undefined) {
         setRealTimeData(doc.data());
@@ -119,7 +120,7 @@ function Video() {
         docSnap.data().videoName + docSnap.data().email.slice(0, -4),
         docSnap.data().views
       );
-
+      document.title = docSnap.data().videoName + " - IceMemes";
       setData(docSnap.data());
       setLoading(false);
       window.scrollTo({
@@ -137,23 +138,32 @@ function Video() {
   }, []);
 
   // download =================================================================================
-  const download = (url) => {
-    // setdownl(url)
-    // document.getElementById("downl").click()
-  };
+  // const download = async (vid) => {
+  //   axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
+  //   axios
+  //     .get(vid.url)
+  //     .then((response) => {
+  //       const url = window.URL.createObjectURL(new Blob([response]));
+  //       const link = document.createElement("a");
+  //       link.href = url;
+  //       link.download = vid.videoName + vid.ext;
+  //       document.body.appendChild(link);
+  //       link.click();
+  //     })
+  //     .catch((error) => {console.log(error)});
+  // };
 
   return (
     <>
-      <ToastContainer 
-      position="top-right"
-      autoClose={3000}
-      hideProgressBar={false}
-      newestOnTop={false}
-      closeOnClick
-      rtl={false}
-      pauseOnFocusLoss
-      
-      pauseOnHover
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        pauseOnHover
       />
       {loading ? (
         <div
@@ -176,7 +186,6 @@ function Video() {
                     autoPlay
                     controls
                     src={data.url}
-                    controlsList="nodownload"
                   ></video>
                 </div>
 
@@ -232,12 +241,12 @@ function Video() {
 
                           {realTimeData.dislikers.length}
                           <AiOutlineShareAlt />
-                          <DownloadLink
-                            filename={data.videoName + data.ext}
-                            exportFile={() => data.url}
-                          >
-                            <BsDownload />
-                          </DownloadLink>
+
+                          {/* <BsDownload
+                          // onClick={() => {
+                          //   download(data);
+                          // }}
+                          /> */}
                         </>
                       </IconContext.Provider>
                     </div>

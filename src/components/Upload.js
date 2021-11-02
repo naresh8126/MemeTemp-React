@@ -11,6 +11,7 @@ import {
 } from "firebase/storage";
 import { ToastContainer, toast } from "react-toastify";
 function Upload() {
+  document.title = "Upload - IceMemes"
   const db = getFirestore();
   let thumbnailUrl = "";
   const [uploading, setuploading] = useState("");
@@ -35,6 +36,8 @@ function Upload() {
   let canvas = document.getElementById("canvas");
   let w, h, ratio, context;
 
+
+  // ========getting thumbnail from video tag=====================================================================
   async function getThumbnail() {
     context = canvas.getContext("2d");
     ratio = video.videoWidth / video.videoHeight;
@@ -59,6 +62,7 @@ function Upload() {
     return thumU;
   }
 
+  // =================== handle input file =========================================================================================
   async function handleInput(e) {
     files = await e.target.files[0];
     if (files.size > 52428800) {
@@ -119,12 +123,17 @@ function Upload() {
             currState: snapshot.state,
             pause: () => {
               uploadTask.pause();
+              toast.info("Upload Paused")
             },
             resume: () => {
               uploadTask.resume();
+              toast.info("Upload resumed")
+
             },
             cancel: () => {
               uploadTask.cancel();
+              toast.error("Upload canceled")
+
 
               setuploadEvent({
                 currState: "",
@@ -158,15 +167,7 @@ function Upload() {
           }
         },
         (error) => {
-          switch (error.code) {
-            case "storage/unauthorized":
-              break;
-            case "storage/canceled":
-              break;
-            case "storage/unknown":
-              break;
-            default:
-          }
+          toast.error(error.code)
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
