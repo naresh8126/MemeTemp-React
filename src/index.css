@@ -5,10 +5,7 @@
 *{
 
 }
-body{
-  background-color: #374151
-  ;
-}
+
 .dropdown:focus-within .dropdown-menu {
   opacity:1;
   transform: translate(0) scale(1);

@@ -11,10 +11,11 @@ import {
 } from "firebase/storage";
 import { ToastContainer, toast } from "react-toastify";
 function Upload() {
-  document.title = "Upload - IceMemes"
+  document.title = "Upload - IceMemes";
   const db = getFirestore();
   let thumbnailUrl = "";
   const [uploading, setuploading] = useState("");
+
   const [url, setUrl] = useState("");
   let thumU = "";
   const [file, setFile] = useState("");
@@ -26,7 +27,7 @@ function Upload() {
     cancel: "",
   });
   const [uploadChange, setuploadChange] = useState("upload");
-  const [fName, setfName] = useState("unNamed");
+  const [fName, setfName] = useState("");
   const storage = getStorage();
   const { currentUser } = useAuth();
 
@@ -35,7 +36,6 @@ function Upload() {
   let video = document.getElementById("video");
   let canvas = document.getElementById("canvas");
   let w, h, ratio, context;
-
 
   // ========getting thumbnail from video tag=====================================================================
   async function getThumbnail() {
@@ -67,7 +67,7 @@ function Upload() {
     files = await e.target.files[0];
     if (files.size > 52428800) {
       setuploadChange("File is too big!");
-      toast.error("Please select file less then 50MB")
+      toast.error("Please select file less then 50MB");
       document.getElementById("submit").disabled = true;
       e.value = "";
       setUrl("");
@@ -105,8 +105,11 @@ function Upload() {
         storage,
         "videos/" +
           fName +
-          currentUser.email.slice(0, -4) +"."+
-          file.name.slice((Math.max(0, file.name.lastIndexOf(".")) || Infinity) + 1)
+          currentUser.email.slice(0, -4) +
+          "." +
+          file.name.slice(
+            (Math.max(0, file.name.lastIndexOf(".")) || Infinity) + 1
+          )
       );
       const uploadTask = uploadBytesResumable(storageRef, file, metadata);
       setuploadEvent({
@@ -123,17 +126,15 @@ function Upload() {
             currState: snapshot.state,
             pause: () => {
               uploadTask.pause();
-              toast.info("Upload Paused")
+              toast.info("Upload Paused");
             },
             resume: () => {
               uploadTask.resume();
-              toast.info("Upload resumed")
-
+              toast.info("Upload resumed");
             },
             cancel: () => {
               uploadTask.cancel();
-              toast.error("Upload canceled")
-
+              toast.error("Upload canceled");
 
               setuploadEvent({
                 currState: "",
@@ -167,7 +168,7 @@ function Upload() {
           }
         },
         (error) => {
-          toast.error(error.code)
+          toast.error(error.code);
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
@@ -188,13 +189,20 @@ function Upload() {
                     likers: [],
                     dislikers: [],
                     commenters: [],
-                    ext: "."+file.name.slice((Math.max(0, file.name.lastIndexOf(".")) || Infinity) + 1)
+                    ext:
+                      "." +
+                      file.name.slice(
+                        (Math.max(0, file.name.lastIndexOf(".")) || Infinity) +
+                          1
+                      ),
+                    timestamp: new Date(),
+                    tags:document.getElementById("tags").value.split(","),
+                    title:fName.split(" ")
                   }
                 );
-              
-
+                document.getElementById("tags").value = ""
                 setuploading("Done!!!");
-                toast.success("Video uploaded successfully :)")
+                toast.success("Video uploaded successfully :)");
                 setuploadChange("choose diffrent video to upload");
                 document.getElementById("submit").disabled = true;
                 setuploadEvent({
@@ -217,7 +225,7 @@ function Upload() {
   }
   return (
     <>
-          <ToastContainer
+      <ToastContainer
         position="top-right"
         autoClose={4000}
         hideProgressBar={false}
@@ -227,22 +235,24 @@ function Upload() {
         pauseOnFocusLoss
         pauseOnHover
       />
-      <div className="h-screen relative min-h-screen flex justify-center bg-gray-500 sm:px-6 lg:px-8 bg-gray-500 bg-no-repeat bg-cover relative md:items-center">
+      <div className="h-screen relative min-h-screen flex justify-center bg-gray-800 text-gray-100 sm:px-6 lg:px-8 bg-gray-500 bg-no-repeat bg-cover relative md:items-center">
         <div className="absolute bg-black opacity-60 inset-0 z-0"></div>
-        <div className="sm:max-w-lg w-full p-4 md:p-4 md:px-16 bg-white md:rounded-xl z-10">
+        <div className="sm:max-w-lg w-full p-4 md:p-4 md:px-16 bg-gray-900 md:rounded-xl z-10">
           <div className="text-center">
-            <h2 className="mt-2 text-3xl font-bold text-gray-900">Meme Upload!</h2>
-            <p className="mt-2 text-sm text-gray-400">
+            <h2 className="mt-2 text-3xl font-bold text-gray-100">
+              Meme Upload!
+            </h2>
+            <p className="mt-2 text-sm text-gray-200">
               Upload your meme here in video format{" "}
             </p>
           </div>
           <form onSubmit={uploadNow} className="mt-8 space-y-3">
             <div className="grid grid-cols-1 space-y-2">
-              <label className="text-sm font-bold text-gray-500 tracking-wide">
+              <label className="text-sm font-bold text-gray-200 tracking-wide">
                 Title
               </label>
               <input
-                className="text-base p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
+                className="font-semibold text-gray-700 placeholder-gray-500 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
                 type="text"
                 id="name"
                 placeholder="enter your meme name"
@@ -254,13 +264,14 @@ function Upload() {
                 required
               />
             </div>
+            
             <div className="grid grid-cols-1 space-y-2">
-              <label className="text-sm font-bold text-gray-500 tracking-wide">
+              <label className="text-sm font-bold text-gray-200 tracking-wide">
                 Attach a video
               </label>
               <div className="flex items-center justify-center w-full">
                 <label className="flex flex-col rounded-lg border-4 border-dashed w-full h-60 p-2 group text-center">
-                  <div className="text-gray-400 h-full w-full text-center flex flex-col items-center justify-center items-center  ">
+                  <div className="text-gray-200 h-full w-full text-center flex flex-col items-center justify-center items-center  ">
                     <div className="flex flex-auto rounded-lg mx-auto ">
                       {file === "" ? (
                         ""
@@ -279,9 +290,11 @@ function Upload() {
                       : `File size is ${(file.size / 1000 / 1000).toFixed(2)}MB
                         
                         `}
-                    <p className="pointer-none text-gray-500 ">
+                    <p className="pointer-none text-gray-200 ">
                       {url === "" ? (
-                        <span className="text-sm">Drag and drop files here</span>
+                        <span className="text-sm">
+                          Drag and drop files here
+                        </span>
                       ) : (
                         ""
                       )}
@@ -297,6 +310,20 @@ function Upload() {
                   />
                 </label>
               </div>
+              <div className="grid grid-cols-1 space-y-2">
+              <label className="text-sm font-bold text-gray-200 tracking-wide">
+                Tags
+              </label>
+              <input
+                className="font-semibold text-gray-700 placeholder-gray-500 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
+                type="text"
+                id="tags"
+                placeholder="Enter tags, Separated by comma"
+                
+                
+                
+              />
+            </div>
             </div>
             {url === "" ? (
               ""

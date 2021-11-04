@@ -44,14 +44,12 @@ function App() {
                 <Main />
               </Route>
             
-              {/* <Route>
-                <Main />
-              </Route> */}
+              
               <Route path="/search">
                 <SearchSection />
               </Route>
             </Switch>
-            {/* <Footer /> */}
+            
           </div>
         </AuthProvider>
       </Router>
