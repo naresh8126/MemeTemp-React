@@ -130,14 +130,14 @@ const Section = (props) => {
       {loading ? (
         <div
           id="loader"
-          className="bg-gray-100 w-full h-screen flex justify-center items-center m-0"
+          className="bg-gray-900 w-full h-screen flex justify-center items-center m-0"
         >
           <PulseLoader color={"#b5b5b5"} loading={true} size={20} />
         </div>
       ) : (
         posts.length !== 0 ?
         <InfiniteScroll
-          className="bg-gray-100"
+          className=""
           dataLength={posts.length}
           next={() => {
             fetchMorePosts(lastKey);
@@ -150,7 +150,7 @@ const Section = (props) => {
           }
           endMessage={<></>}
         >
-          <div className="grid grid-cols-1 2xl:grid-cols-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-8 bg-gray-100">
+          <div className="grid grid-cols-1 2xl:grid-cols-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-8" style={{backgroundColor:"#191c23"}}>
             {allPosts}
           </div>
         </InfiniteScroll>:<div className=" w-full flex justify-center	 items-center	 h-screen" style={{backgroundColor:"white"}}><img src={fic} alt="error" width="300px" /></div>

@@ -1,7 +1,7 @@
 import "./App.css";
 import Main from "./components/Main";
 import Nav from "./components/Nav";
-import Footer from "./components/Footer";
+
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Upload from "./components/Upload";
@@ -15,7 +15,7 @@ import {
   Redirect,
 } from "react-router-dom";
 import React from "react";
-import About from "./components/About";
+
 import PrivateRoute from "./components/Private";
 import SearchSection from './components/SearchSection'
 import { getAuth } from "firebase/auth";
@@ -29,9 +29,7 @@ function App() {
             <Switch>
               <PrivateRoute component={Upload} path="/upload" exact />
               <PrivateRoute component={Profile} path="/profile" exact />
-              <Route path="/about">
-                <About />
-              </Route>
+              
               <Route path="/register">
                 {!isLoggedIn() ? <Register /> : <Redirect to="/" />}
               </Route>

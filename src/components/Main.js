@@ -5,7 +5,7 @@ import Hero from "./Hero";
 function Main() {
   document.title = "IceMemes"
   return (
-    <div>
+    <div style={{background:"#191c23"}}>
      
       <Section/>
       

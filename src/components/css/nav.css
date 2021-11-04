@@ -70,7 +70,6 @@ a {
   color: #fff;
   background-color: #0000001f;
   border: 0.1px solid rgba(255, 255, 255, 0.219);
-  
 }
 
 .nav-link {
@@ -129,5 +128,190 @@ a {
 
   .hamburger.active .bar:nth-child(3) {
     transform: translateY(-8px) rotate(-45deg);
+  }
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Fruktur&display=swap");
+
+* {
+  padding: 0%;
+  margin: 0%;
+}
+
+a {
+  text-decoration: none;
+  color: white;
+}
+
+a:hover {
+  text-decoration: none;
+  color: white;
+}
+
+nav {
+  color: white;
+  background-color: #222631;
+  width: 100%;
+  height: 60px;
+  z-index: 999;
+}
+
+#logo {
+  font-family: "Fruktur", cursive;
+  font-size: 30px;
+  color: #96a2b2;
+}
+
+#navc {
+  padding: 20px;
+  height: 60px;
+  max-width: 1100px;
+  margin: 0 auto;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#right {
+  display: flex;
+  align-items: center;
+}
+
+#signup {
+  border: none;
+  outline: none;
+  color: white;
+  background: #383f51;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+#right ul {
+  letter-spacing: 1px;
+  font-weight: 600;
+  font-size: 12px;
+  margin: 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+}
+
+#right ul li {
+  margin-left: 30px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+}
+
+#right ul li a {
+  display: flex;
+  align-items: center;
+}
+
+#right ul li svg {
+  margin-right: 5px;
+}
+
+#left {
+  display: flex;
+  align-items: center;
+}
+
+#search {
+  margin-left: 20px;
+}
+
+#search form input {
+  padding: 10px;
+  border-radius: 5px 0 0 5px;
+  outline: none;
+  border: none;
+  background-color: #191c22;
+  color: white;
+  height: 40px;
+  font-size: 14px;
+  font-family: Roboto, sans-serif;
+  max-width: 200px;
+}
+
+#search form input::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #78809b;
+  opacity: 1;
+  /* Firefox */
+}
+
+#search form button {
+  margin: 0;
+  outline: none;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  float: right;
+  height: 40px;
+  width: 45px;
+  background-color: #3a4053;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+
+
+#m_search form input {
+  padding: 10px;
+  border-radius: 5px 0 0 5px;
+  outline: none;
+  border: none;
+  background-color: #191c22;
+  color: white;
+  height: 40px;
+  font-size: 14px;
+  font-family: Roboto, sans-serif;
+  width: 200px;
+}
+
+#m_search form input::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #78809b;
+  opacity: 1;
+  /* Firefox */
+}
+
+#m_search form button {
+  margin: 0;
+  outline: none;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  float: right;
+  height: 40px;
+  width: 45px;
+  background-color: #3a4053;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+#mobile_right {
+  display: none;
+}
+
+@media screen and (max-width: 700px) {
+  #right {
+    display: none;
+  }
+  #search {
+    display: none;
+  }
+
+  #mobile_right {
+    display: flex;
+  }
+}
+@media screen and (max-width: 1035px) {
+  #mobile{
+    display: none;
   }
 }
