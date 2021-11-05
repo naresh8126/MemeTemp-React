@@ -11,16 +11,16 @@ function Main() {
           where("views","<=","10")
       */}
       
-      <Sec  title="Featured Memes" content={<Section orderBy="random"/>}  />
-      <Sec  title="Latest Memes" content={<Section orderBy="timestamp"/>}  />
-      <Sec  title="Random Memes" content={<Section orderBy="random"/>}  />
-      <Sec  title="Most Popular Memes" content={<Section orderBy="views"/>}  />
-      <Sec  title="Most Liked Memes" content={<Section orderBy="likes"/>}  />
-      <Sec  title="Longest Memes" content={<Section orderBy="duration"/>}  />
+      <Sec  title="Featured Memes" content={<Section orderBy="random"/>} link="/memes/featured"   />
+      <Sec  title="Latest Memes" content={<Section orderBy="timestamp"/>}  link="/memes/latest"  />
+      <Sec  title="Most Liked Memes" content={<Section orderBy="likes"/>} link="/memes/mostLiked"  />
+      <Sec  title="Most Popular Memes" content={<Section orderBy="views"/>} link="/memes/mostPopular"  />
+      <Sec  title="Random Memes" content={<Section orderBy="random"/>} link="/memes/random" />
+      <Sec  title="Longest Memes" content={<Section orderBy="duration"/>} link="/memes/longest"  />
       
       
       
-    </div>
+    </div> 
   );
 }
 

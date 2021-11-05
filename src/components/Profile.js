@@ -59,12 +59,12 @@ const Profile = (props) => {
     setLoading(true);
     try {
       await deleteDoc(
-        doc(db, "videos", video.videoName + currentUser.email.slice(0, -4))
+        doc(db, "videos", video.videoName)
       );
       // Create a reference to the file to delete
       const desertRef = ref(
         storage,
-        "videos/" + video.videoName + currentUser.email.slice(0, -4) + video.ext
+        "videos/" + video.videoName + video.ext
       );
 
       // Delete the file
@@ -73,7 +73,7 @@ const Profile = (props) => {
           deleteObject(
             ref(
               storage,
-              "thumbnails/" + video.videoName + currentUser.email.slice(0, -4)
+              "thumbnails/" + video.videoName
             )
           )
             .then(() => {
@@ -108,7 +108,7 @@ const Profile = (props) => {
           <div>
             <div
               // to={"/video/" + e.name + e.email.slice(0, -4)}
-              className=" each mb-10 sm:m-2 md:border md:border-gray-200 bg-gray-100 relative block duration-500  transition-all  md:hover:border-purple-800 "
+              className=" each mb-10 sm:m-2  bg-gray-800 relative block duration-500  transition-all   text-gray-100"
             >
               <div
                 className="flex items-center justify-center bg-gray-900"
@@ -136,7 +136,7 @@ const Profile = (props) => {
                 </div>
               </div>
 
-              <div className="info-box text-xs flex p-1 font-semibold text-gray-500 bg-gray-300">
+              <div className="info-box text-xs flex p-1 font-semibold text-gray-200 bg-gray-800">
                 <span className="mr-1 p-1 px-2 font-bold">{e.views} views</span>
                 <span className="mr-1 p-1 px-2 font-bold border-l border-gray-400">
                   {e.likes} Likes
@@ -145,9 +145,9 @@ const Profile = (props) => {
                   {e.dislikes} Dislikes
                 </span>
               </div>
-              <div className="desc p-4 text-gray-800">
+              <div className="desc p-4 text-gray-100">
                 <Link
-                  to={"/video/" + e.videoName + e.email.slice(0, -4)}
+                  to={"/video/" + e.videoName}
                   className="title font-bold block cursor-pointer hover:underline"
                 >
                   {e.videoName}
@@ -176,12 +176,12 @@ const Profile = (props) => {
       {loading ? (
         <div
           id="loader"
-          className="bg-gray-100 w-full h-screen flex justify-center items-center m-0"
+          className="bg-gray-900 w-full h-screen flex justify-center items-center m-0"
         >
           <PulseLoader color={"#b5b5b5"} loading={true} size={20} />
         </div>
       ) : (
-        <div className="grid grid-cols-1 2xl:grid-cols-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-8 bg-gray-100">
+        <div className="grid grid-cols-1 2xl:grid-cols-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-8 bg-gray-900">
           {allPosts}
         </div>
       )}

@@ -5,7 +5,7 @@ function Card(props) {
   return (
     <div>
       <Link
-        to={"/video/" + props.name + props.email.slice(0, -4)}
+        to={"/video/" + props.name}
         className="each mb-10 sm:m-2  text-gray-100 relative block duration-500  transition-all  "
         style={{background:"#282c37"}}
       >

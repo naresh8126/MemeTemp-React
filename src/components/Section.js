@@ -56,7 +56,7 @@ const Section = (props) => {
       } else {
         const data = await getDocs(
           query(videoRef, orderBy(props.orderBy, "desc"), limit(6))
-        );
+        ); 
         let posts = [];
         data.forEach((doc) => {
           posts.push(doc.data());
@@ -107,7 +107,7 @@ const Section = (props) => {
       {loading ? (
         <div
           id="loader"
-          className="bg-gray-900 w-full h-screen flex justify-center items-center m-0"
+          className="bg-800 w-full h-screen flex justify-center items-center m-0"
         >
           <PulseLoader color={"#b5b5b5"} loading={true} size={20} />
         </div>

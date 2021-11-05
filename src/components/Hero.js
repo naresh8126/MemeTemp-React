@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import {} from "react-router-dom"
+
 import "./css/hero.css";
 import ig from '../static/ig.png'
 import tw from '../static/tw.png'
@@ -15,7 +15,7 @@ function Hero() {
   return (
     <div id="search_hero">
       <div id="s">
-        <h1 className="text-5xl text-gray-100 my-8">Welcome to MemeCave!</h1>
+        <h1 className="md:text-5xl text-3xl text-gray-100 md:my-8 my-4">Welcome to MemeCave!</h1>
         <form
         className="mt-4s"
           action=""
@@ -37,7 +37,7 @@ function Hero() {
             </svg>
           </Link>
         </form>
-        <div className="links flex mt-6">
+        <div className="links flex  mt-2 md:mt-6">
           <a className="m-4" href="#"><img width="50px" src={fb} alt="facebook" /></a>
           <a className="m-4" href="#"><img width="50px" src={ig} alt="instagram" /></a>
           <a className="m-4" href="#"><img width="50px" src={tw} alt="twitter" /></a>

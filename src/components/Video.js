@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useRouteMatch, Link } from "react-router-dom";
+import { useParams, useRouteMatch, Link, useLocation } from "react-router-dom";
 import {
   collection,
   getDoc,
@@ -12,9 +12,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { ToastContainer, toast } from "react-toastify";
-import { saveAs } from "file-saver";
-
-import { BsDownload } from "react-icons/bs";
+import Sec from "./Sec";
 
 import {
   AiOutlineLike,
@@ -26,12 +24,11 @@ import {
 import { IconContext } from "react-icons";
 import PulseLoader from "react-spinners/PulseLoader";
 import { useAuth } from "../contexts/Auth";
-import axios from "axios";
 
 function Video() {
+  const location = useLocation();
   const { currentUser } = useAuth();
   const db = getFirestore();
-
   const d = useParams();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState();
@@ -43,7 +40,7 @@ function Video() {
     onSnapshot(doc(db, "videos", name), (doc) => {
       setRealTimeData(doc.data());
     });
-  }, []);
+  }, [location]);
 
   // views--------------------------------------------------------------------------------------
   async function addView(video, cviews) {
@@ -54,13 +51,16 @@ function Video() {
   }
 
   // like function ======================================================================================
-  function addLike() {
+  async function addLike() {
     try {
-      updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
-        likers: arrayUnion(currentUser.email),
-        dislikers: arrayRemove(currentUser.email),
-      });
-      updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
+      await updateDoc(
+        doc(db, "videos", data.videoName),
+        {
+          likers: arrayUnion(currentUser.email),
+          dislikers: arrayRemove(currentUser.email),
+        }
+      );
+      updateDoc(doc(db, "videos", data.videoName), {
         dislikes: data.dislikers.length,
         likes: data.likers.length,
       });
@@ -70,13 +70,16 @@ function Video() {
   }
 
   // dislike function====================================================================================
-  function addDislike() {
+  async function addDislike() {
     try {
-      updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
-        dislikers: arrayUnion(currentUser.email),
-        likers: arrayRemove(currentUser.email),
-      });
-      updateDoc(doc(db, "videos", data.videoName + data.email.slice(0, -4)), {
+      await updateDoc(
+        doc(db, "videos", data.videoName),
+        {
+          dislikers: arrayUnion(currentUser.email),
+          likers: arrayRemove(currentUser.email),
+        }
+      );
+      updateDoc(doc(db, "videos", data.videoName), {
         dislikes: data.dislikers.length,
         likes: data.likers.length,
       });
@@ -106,7 +109,6 @@ function Video() {
 
   // getting main video data==================================================================
   async function getdata(url) {
-   
     onSnapshot(doc(db, "videos", url), (doc) => {
       if (setRealTimeData !== undefined) {
         setRealTimeData(doc.data());
@@ -117,7 +119,7 @@ function Video() {
 
     if (docSnap.exists()) {
       addView(
-        docSnap.data().videoName + docSnap.data().email.slice(0, -4),
+        docSnap.data().videoName + docSnap.data(),
         docSnap.data().views
       );
       document.title = docSnap.data().videoName + " - IceMemes";
@@ -135,23 +137,7 @@ function Video() {
     let { name } = d;
     getdata(name);
     get();
-  }, []);
-
-  // download =================================================================================
-  // const download = async (vid) => {
-  //   axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
-  //   axios
-  //     .get(vid.url)
-  //     .then((response) => {
-  //       const url = window.URL.createObjectURL(new Blob([response]));
-  //       const link = document.createElement("a");
-  //       link.href = url;
-  //       link.download = vid.videoName + vid.ext;
-  //       document.body.appendChild(link);
-  //       link.click();
-  //     })
-  //     .catch((error) => {console.log(error)});
-  // };
+  }, [location]);
 
   return (
     <>
@@ -168,123 +154,135 @@ function Video() {
       {loading ? (
         <div
           id="loader"
-          className="bg-gray-100 w-full h-screen flex justify-center	items-center"
+          className="bg-gray-900 w-full h-screen flex justify-center	items-center"
         >
           <PulseLoader color={"#b5b5b5"} loading={true} size={20} />
         </div>
       ) : (
-        <div className=" flex flex-col md:flex-row bg-gray-200 md:p-8">
-          <div className="w-full mb-8 md:w-1/2">
-            {/* <video className="bg-red-300 w-full" src=""></video> */}
-            {data === undefined ? (
-              ""
-            ) : (
-              <div>
-                <div className="flex items-center justify-center bg-gray-900 w-full md:h-96">
-                  <video
-                    className="h-60 md:h-full"
-                    autoPlay
-                    controls
-                    src={data.url}
-                  ></video>
-                </div>
+        <Sec
+          title=""
+          link=""
+          content={
+            <div className=" flex flex-col md:flex-row bg-gray-900 md:p-8 text-gray-100">
+              <div className="w-full mb-8 md:w-2/3">
+                {/* <video className="bg-red-300 w-full" src=""></video> */}
+                {data === undefined ? (
+                  ""
+                ) : (
+                  <div>
+                    <div className="flex items-center justify-center bg-gray-900 w-full md:h-96">
+                      <video
+                        className="h-60 md:h-full"
+                        autoPlay
+                        controls
+                        src={data.url}
+                      ></video>
+                    </div>
 
-                <div className="p-2">
-                  <div className="text-lg font-medium">{data.videoName}</div>
-                  <div className="flex sm:justify-between flex-col sm:flex-row">
-                    {" "}
-                    <div>
-                      <div className="">
-                        <span className="text-red-700">@</span>
-                        {data.uploadedBy}
+                    <div className="p-2">
+                      <div className="text-lg font-medium">
+                        {data.videoName}
                       </div>
-                      <div className="">{realTimeData.views} views</div>
-                    </div>
-                    <div className="flex items-center text-gray-500">
-                      <IconContext.Provider
-                        value={{
-                          color: "gray",
-                          size: "40px",
-                          className: "hover:bg-gray-300 p-2 rounded-lg m-1",
-                        }}
-                      >
-                        <>
-                          {realTimeData.likers.includes(currentUser.email) ? (
-                            <AiTwotoneLike
-                              onClick={() => {
-                                addLike();
-                              }}
-                            />
-                          ) : (
-                            <AiOutlineLike
-                              onClick={() => {
-                                addLike();
-                              }}
-                            />
-                          )}
-                          {realTimeData.likers.length}
-                          {realTimeData.dislikers.includes(
-                            currentUser.email
-                          ) ? (
-                            <AiTwotoneDislike
-                              onClick={() => {
-                                addDislike();
-                              }}
-                            />
-                          ) : (
-                            <AiOutlineDislike
-                              onClick={() => {
-                                addDislike();
-                              }}
-                            />
-                          )}
+                      <div className="flex sm:justify-between flex-col sm:flex-row">
+                        {" "}
+                        <div>
+                          <Link className="">
+                            <span className="text-red-500">@</span>
+                            {data.uploadedBy}
+                          </Link>
+                          <div className="">{realTimeData.views} views</div>
+                        </div>
+                        <div className="flex items-center text-gray-500">
+                          <IconContext.Provider
+                            value={{
+                              color: "white",
+                              size: "40px",
+                              className: "hover:bg-gray-800 p-2 rounded-lg m-1",
+                            }}
+                          >
+                            <>
+                              {realTimeData.likers.includes(
+                                currentUser.email
+                              ) ? (
+                                <AiTwotoneLike
+                                  onClick={() => {
+                                    addLike();
+                                  }}
+                                />
+                              ) : (
+                                <AiOutlineLike
+                                  onClick={() => {
+                                    addLike();
+                                  }}
+                                />
+                              )}
+                              {realTimeData.likers.length}
+                              {realTimeData.dislikers.includes(
+                                currentUser.email
+                              ) ? (
+                                <AiTwotoneDislike
+                                  onClick={() => {
+                                    addDislike();
+                                  }}
+                                />
+                              ) : (
+                                <AiOutlineDislike
+                                  onClick={() => {
+                                    addDislike();
+                                  }}
+                                />
+                              )}
 
-                          {realTimeData.dislikers.length}
-                          <AiOutlineShareAlt />
-
-                          {/* <BsDownload
-                          // onClick={() => {
-                          //   download(data);
-                          // }}
-                          /> */}
-                        </>
-                      </IconContext.Provider>
+                              {realTimeData.dislikers.length}
+                              <AiOutlineShareAlt />
+                            </>
+                          </IconContext.Provider>
+                        </div>
+                      </div>
                     </div>
+                    <hr />
                   </div>
-                </div>
-                <hr />
+                )}
               </div>
-            )}
-          </div>
-          <div className="w-full  md:w-1/2 md:p-4 md:p-12 md:pr-0 md:pt-0">
-            {sidedata === undefined
-              ? ""
-              : sidedata.map((vid) => {
-                  return (
-                    <Link
-                      to={"/video/" + vid.videoName + vid.email.slice(0, -4)}
-                      className="md:hover:bg-gray-300 p-2 md:flex w-full h-48 mb-4"
-                      onClick={() => {
-                        getdata(vid.videoName + vid.email.slice(0, -4));
-                      }}
-                    >
-                      <div
-                        className="flex items-center justify-center bg-gray-900 h-48  md:h-full md:w-1/2"
-                        // style={{ width: "370px", height: "200px" }}
-                      >
-                        <img alt="" className="h-full" src={vid.thumbnail} />
-                      </div>
+              <div className="w-full  md:w-1/3 md:p-4 md:p-12 md:pr-0 md:pt-0">
+                {sidedata === undefined
+                  ? ""
+                  : sidedata.map((vid) => {
+                      return (
+                        <Link
+                          to={
+                            "/video/" + vid.videoName 
+                          }
+                          className="md:hover:bg-gray-800 p-2 flex flex-col w-full mb-4"
+                          onClick={() => {
+                            getdata(vid.videoName );
+                          }}
+                        >
+                          <div
+                            className="flex items-center justify-center bg-gray-900 h-48  md:h-full "
+                            // style={{ width: "370px", height: "200px" }}
+                          >
+                            <img
+                              alt=""
+                              className="h-full w-full"
+                              src={vid.thumbnail}
+                            />
+                          </div>
 
-                      <div className="p-2 md:w-1/2">
-                        <h6 className="text-lg font-medium">{vid.videoName}</h6>
-                        <div className="">@{vid.uploadedBy}</div>
-                        <div className="">views {vid.views} </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-          </div>
-        </div>
+                          <div className="p-2">
+                            <h6 className="text-lg font-medium">
+                              {vid.videoName}
+                            </h6>
+                            <div className="">@{vid.uploadedBy}</div>
+                            <div className="">views {vid.views} </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+              </div>
+            </div>
+          }
+        />
       )}
     </>
   );

@@ -1,6 +1,4 @@
-
 #search_hero {
-  
   background: url("https://firebasestorage.googleapis.com/v0/b/ice-memes.appspot.com/o/pexels-belle-co-847393.jpg?alt=media&token=365da6bb-aef7-49d9-9d03-4701e395b55a");
   background-position: center;
 
@@ -12,7 +10,7 @@
   background-repeat: no-repeat;
 }
 #s {
-  background:linear-gradient(rgba(0, 0, 0, 0.200),rgba(0, 0, 0, 0.712));
+  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.712));
   display: flex;
   justify-content: center;
   align-items: center;
@@ -26,8 +24,6 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  
-
 }
 #s input {
   font-size: 16px;
@@ -45,4 +41,32 @@
   background-color: #e3bb37;
   color: white;
   border-radius: 0 5px 5px 0;
+}
+
+@media screen and (max-width: 600px) {
+  #search_hero {
+    height: 250px;
+  }
+  #s {
+    
+    height: 250px;
+    
+  }
+  #s input {
+    font-size: 16px;
+    width: 250px;
+    padding: 8px 16px;
+    border-radius: 5px 0 0 5px;
+  }
+  #sBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 75px;
+    padding: 8px 16px;
+
+    background-color: #e3bb37;
+    color: white;
+    border-radius: 0 5px 5px 0;
+  }
 }

@@ -115,7 +115,7 @@ nav {
   /* Firefox */
 }
 
-#search form button {
+#link {
   margin: 0;
   outline: none;
   border: none;
@@ -152,7 +152,7 @@ nav {
   /* Firefox */
 }
 
-#m_search form button {
+#m_search form a {
   margin: 0;
   outline: none;
   border: none;

@@ -12,20 +12,32 @@ const Nav = () => {
   const isDesktopOrLaptop = useMediaQuery({
     query: "(min-width: 750px)",
   });
-
+  const [search, setsearch] = React.useState("");
+  const changeSearch = (e) => {
+    setsearch(e.target.value);
+  };
   const ProfileMenu = () => {
     return (
       <>
         <Link
           to="/profile"
-          className="inline-block hover:bg-gray-700  align-middle px-16 py-2 font-medium text-left w-full  text-gray-100"
+          className="inline-block hover:bg-gray-700  align-middle px-8 py-2 font-medium text-left w-full  text-gray-100"
         >
           {currentUser.displayName === null ||
           currentUser.displayName === undefined
             ? "Profile"
             : currentUser.displayName}
         </Link>
-        {isTabletOrMobile && <></>}
+        {isTabletOrMobile && (
+          <>
+            <Link
+              to="/upload"
+              className="inline-block hover:bg-gray-700 px-8  align-middle  py-2 font-medium text-left w-full  text-gray-100"
+            >
+              Upload
+            </Link>
+          </>
+        )}
         {isDesktopOrLaptop && <></>}
         <hr />
         <button
@@ -52,8 +64,13 @@ const Nav = () => {
                   e.preventDefault();
                 }}
               >
-                <input type="text" placeholder="Search memes..." />
-                <button>
+                <input
+                  type="text"
+                  placeholder="Search memes..."
+                  onChange={changeSearch}
+                  value={search}
+                />
+                <Link id="link" to={`/search?q=${search}`}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     height="24px"
@@ -64,7 +81,7 @@ const Nav = () => {
                     <path d="M0 0h24v24H0V0z" fill="none" />
                     <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
                   </svg>
-                </button>
+                </Link>
               </form>
             </div>
           </div>
@@ -158,17 +175,18 @@ const Nav = () => {
           <div id="mobile_right">
             <Dropdown
               img=""
-                      
-              other={ <svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="24px"
-                viewBox="0 0 24 24"
-                width="24px"
-                fill="#fff"
-              >
-                <path d="M0 0h24v24H0V0z" fill="none" />
-                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-              </svg>}
+              other={
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="24px"
+                  viewBox="0 0 24 24"
+                  width="24px"
+                  fill="#fff"
+                >
+                  <path d="M0 0h24v24H0V0z" fill="none" />
+                  <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                </svg>
+              }
               content={
                 <div id="m_search">
                   <form
@@ -177,8 +195,13 @@ const Nav = () => {
                       e.preventDefault();
                     }}
                   >
-                    <input type="text" placeholder="Search memes..." />
-                    <button>
+                    <input
+                      type="text"
+                      placeholder="Search memes..."
+                      onChange={changeSearch}
+                      value={search}
+                    />
+                    <Link to={`/search?q=${search}`}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         height="24px"
@@ -189,91 +212,34 @@ const Nav = () => {
                         <path d="M0 0h24v24H0V0z" fill="none" />
                         <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
                       </svg>
-                    </button>
+                    </Link>
                   </form>
                 </div>
               }
             />
-
-            <Dropdown img={pic} content={<ProfileMenu />} />
+            {currentUser !== "" ? (
+              <Dropdown img={pic} content={<ProfileMenu />} />
+            ) : (
+              <div className="flex justify-center items-center flex-col">
+                <Link className="flex justify-center items-center " to="/login">
+                  <svg
+                    className="mx-2"
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="16px"
+                    viewBox="0 0 24 24"
+                    width="16px"
+                    fill="#e3bb37"
+                  >
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <path d="M21 3.01H3c-1.1 0-2 .9-2 2V9h2V4.99h18v14.03H3V15H1v4.01c0 1.1.9 1.98 2 1.98h18c1.1 0 2-.88 2-1.98v-14c0-1.11-.9-2-2-2zM11 16l4-4-4-4v3H1v2h10v3z" />
+                  </svg>
+                  SIGN IN
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </nav>
-
-      {/* <header className="header sticky top-0 w-full">
-        <nav className="navbar">
-          <Link
-            to="/"
-            className="nav-logo hover:text-gray-100 text-base sm:text-lg"
-          >
-            IceMemes
-          </Link>
-
-          <div className="links">
-            <Searchbox />
-
-            <ul className={`nav-menu ${navtoggle}`}>
-              <li>
-                <NavLink
-                  className="nav-item"
-                  exact
-                  to="/"
-                  activeClassName="active"
-                >
-                  Home
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  className="nav-item"
-                  exact
-                  to="/upload"
-                  activeClassName="active"
-                >
-                  <BsUpload className="mr-2" /> Upload
-                </NavLink>
-              </li>
-
-              
-
-              <div className="flex mx-auto">
-                {currentUser === "" ? (
-                  <Link
-                    to="/login"
-                    className="leading-4 px-4 py-2 m-2  text-sm font-medium border  transition text-blue-600 bg-transparent	 border-blue-600 hover:text-gray-100 hover:bg-blue-600 transform motion-reduce:transform-none"
-                  >
-                    Log In
-                  </Link>
-                ) : (
-                  <>
-                    <Dropdown profilePic={pic} content={<ProfileMenu />} />
-                  </>
-                )}
-              </div>
-            </ul>
-          </div>
-          
-          {isTabletOrMobile &&
-            (currentUser === "" ? (
-              <>
-                <Link
-                  to="/login"
-                  className="leading-4 px-4 py-2 m-2  text-sm font-medium border  transition text-green-600 bg-transparent	 border-green-600 hover:text-gray-100 hover:bg-green-600 transform motion-reduce:transform-none"
-                >
-                  Login
-                </Link>
-              </>
-            ) : (
-              <>
-                {}
-                <Dropdown
-                  profilePic="https://firebasestorage.googleapis.com/v0/b/meme--temp.appspot.com/o/user.png?alt=media&token=f2277b5c-42bc-4d33-b658-0a084f1a1041"
-                  content={<ProfileMenu />}
-                />
-              </>
-            ))}
-        </nav>
-      </header> */}
     </>
   );
 };

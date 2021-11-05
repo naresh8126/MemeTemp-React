@@ -1,23 +1,18 @@
 import "./App.css";
 import Main from "./components/Main";
 import Nav from "./components/Nav";
-
+import All from './components/All'
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Upload from "./components/Upload";
 import { AuthProvider } from "./contexts/Auth";
 import Video from "./components/Video";
 import Profile from "./components/Profile";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Redirect,
-} from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import React from "react";
 
 import PrivateRoute from "./components/Private";
-import SearchSection from './components/SearchSection'
+import SearchSection from "./components/SearchSection";
 import { getAuth } from "firebase/auth";
 function App() {
   return (
@@ -29,13 +24,13 @@ function App() {
             <Switch>
               <PrivateRoute component={Upload} path="/upload" exact />
               <PrivateRoute component={Profile} path="/profile" exact />
-              
+
               <Route path="/register">
-                {!isLoggedIn() ? <Register /> : <Redirect to="/" />}
+                {!isLoggedIn() ? <Register /> : <Main />}
               </Route>
-              
+
               <Route path="/login">
-                {!isLoggedIn() ? <Login /> : <Redirect to="/" />}
+                {!isLoggedIn() ? <Login /> : <Main />}
               </Route>
               <Route path="/video/:name">
                 <Video />
@@ -43,13 +38,16 @@ function App() {
               <Route exact path="/">
                 <Main />
               </Route>
-            
-              
+
               <Route path="/search">
-                <SearchSection />
+                <SearchSection key={window.location.pathname} />
               </Route>
+
+              <Route path="/memes/:type">
+                <All/>
+              </Route>
+
             </Switch>
-            
           </div>
         </AuthProvider>
       </Router>

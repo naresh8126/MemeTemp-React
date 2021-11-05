@@ -1,16 +1,26 @@
 import React from "react";
-import {Link} from 'react-router-dom'
+import { Link } from "react-router-dom";
 function Sec(props) {
-  
   return (
     <>
       <div
-        className="flex flex-col "
-        style={{ margin: "20px auto", width: "1100px",marginBottom:"4rem" }}
+        className="flex flex-col items-center"
+        style={{ margin: "0px auto", maxWidth: "1100px", marginBottom: "8rem" }}
       >
-        <h1 className="text-gray-100 border-b-2 text-2xl border-yellow-400 p-2">{props.title}</h1>
+        {props.title!==""?  <h1 className="text-gray-100 border-b-2 text-2xl border-yellow-400 p-2 my-8 w-max">
+          {props.title.toUpperCase()}
+        </h1>:""}
+      
         <div>{props.content}</div>
-        <Link className="text-gray-100 underline text-sm text-right" to={props.link}>View More...</Link>
+        <h1 className="w-full text-right">
+          {props.link !== "" ? (
+            <Link className="text-gray-100 underline" to={props.link}>
+              View More...
+            </Link>
+          ) : (
+            ""
+          )}
+        </h1>
       </div>
     </>
   );

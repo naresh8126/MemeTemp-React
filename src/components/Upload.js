@@ -1,7 +1,13 @@
 import { useState } from "react";
 import "./css/upload.css";
 import { useAuth } from "../contexts/Auth";
-import { doc, setDoc, getFirestore, FieldValue } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  getFirestore,
+  getDoc,
+  collection,
+} from "firebase/firestore";
 import {
   getStorage,
   ref,
@@ -30,7 +36,7 @@ function Upload() {
   const [fName, setfName] = useState("");
   const storage = getStorage();
   const { currentUser } = useAuth();
-
+  const [title, setTtitle] = useState("");
   let files = "";
   let contentType;
   let video = document.getElementById("video");
@@ -38,6 +44,7 @@ function Upload() {
   let w, h, ratio, context;
 
   // ========getting thumbnail from video tag=====================================================================
+
   async function getThumbnail() {
     context = canvas.getContext("2d");
     ratio = video.videoWidth / video.videoHeight;
@@ -50,7 +57,7 @@ function Upload() {
     canvas.toBlob((blob) => {
       const storageRef = ref(
         storage,
-        "thumbnails/" + fName + currentUser.email.slice(0, -4)
+        "thumbnails/" + fName
       );
 
       uploadBytes(storageRef, blob).then((snapshot) => {
@@ -86,97 +93,104 @@ function Upload() {
   }
   const getName = (event) => {
     setfName(event.target.value.replace(/[^\w\s]/gi, ""));
+    setTtitle(fName.toUpperCase().split(","));
   };
 
   async function uploadNow(e) {
     e.preventDefault();
-    const Turl = await getThumbnail();
-    const metadata = {
-      contentType: contentType,
-      customMetadata: {
-        name: fName,
-        uploadedBy: currentUser.displayName,
-        email: currentUser.email,
-        thumbnail: Turl,
-      },
-    };
-    if (file !== "") {
-      const storageRef = ref(
-        storage,
-        "videos/" +
-          fName +
-          currentUser.email.slice(0, -4) +
-          "." +
-          file.name.slice(
-            (Math.max(0, file.name.lastIndexOf(".")) || Infinity) + 1
-          )
-      );
-      const uploadTask = uploadBytesResumable(storageRef, file, metadata);
-      setuploadEvent({
-        currState: "",
-        pause: "",
-        resume: "",
-        cancel: "",
-      });
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          setuploadEvent({
-            currState: snapshot.state,
-            pause: () => {
-              uploadTask.pause();
-              toast.info("Upload Paused");
-            },
-            resume: () => {
-              uploadTask.resume();
-              toast.info("Upload resumed");
-            },
-            cancel: () => {
-              uploadTask.cancel();
-              toast.error("Upload canceled");
-
-              setuploadEvent({
-                currState: "",
-                pause: "",
-                resume: "",
-                cancel: "",
-              });
-
-              setuploadChange("canceled Upload again?");
-              setuploading("");
-            },
-          });
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-
-          setuploading("Uploading " + parseInt(progress) + "%");
-          setUpProgress(parseInt(progress));
-          switch (snapshot.state) {
-            case "paused":
-              setuploadChange("paused");
-              setuploading("paused " + parseInt(progress) + "%");
-              break;
-            case "canceled":
-              break;
-            case "running":
-              setuploadChange("uploading");
-              document.getElementById("submit").disabled = true;
-              setuploading("uploading " + parseInt(progress) + "%");
-              break;
-            default:
-          }
+    const docRef = doc(db, "videos", fName);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      console.log("Meme is already uploaded with '" + fName + "' name!!");
+      toast.error("Meme is already uploaded with '" + fName + "' name!!")
+    } else {
+      const Turl = await getThumbnail();
+      const metadata = {
+        contentType: contentType,
+        customMetadata: {
+          name: fName,
+          uploadedBy: currentUser.displayName,
+          email: currentUser.email,
+          thumbnail: Turl,
         },
-        (error) => {
-          toast.error(error.code);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setTimeout(() => {
-              if (thumbnailUrl) {
-                setDoc(
-                  doc(db, "videos", fName + currentUser.email.slice(0, -4)),
-                  {
+      };
+
+      if (file !== "") {
+        const storageRef = ref(
+          storage,
+          "videos/" +
+            fName +
+            
+            "." +
+            file.name.slice(
+              (Math.max(0, file.name.lastIndexOf(".")) || Infinity) + 1
+            )
+        );
+        const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+        setuploadEvent({
+          currState: "",
+          pause: "",
+          resume: "",
+          cancel: "",
+        });
+
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            setuploadEvent({
+              currState: snapshot.state,
+              pause: () => {
+                uploadTask.pause();
+                toast.info("Upload Paused");
+              },
+              resume: () => {
+                uploadTask.resume();
+                toast.info("Upload resumed");
+              },
+              cancel: () => {
+                uploadTask.cancel();
+                toast.error("Upload canceled");
+
+                setuploadEvent({
+                  currState: "",
+                  pause: "",
+                  resume: "",
+                  cancel: "",
+                });
+
+                setuploadChange("canceled Upload again?");
+                setuploading("");
+              },
+            });
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+
+            setuploading("Uploading " + parseInt(progress) + "%");
+            setUpProgress(parseInt(progress));
+            switch (snapshot.state) {
+              case "paused":
+                setuploadChange("paused");
+                setuploading("paused " + parseInt(progress) + "%");
+                break;
+              case "canceled":
+                break;
+              case "running":
+                setuploadChange("uploading");
+                document.getElementById("submit").disabled = true;
+                setuploading("uploading " + parseInt(progress) + "%");
+                break;
+              default:
+            }
+          },
+          (error) => {
+            toast.error(error.code);
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              setTimeout(() => {
+                if (thumbnailUrl) {
+                  setDoc(doc(db, "videos", fName), {
                     videoName: fName,
                     url: downloadURL,
                     uploadedBy: currentUser.displayName,
@@ -196,31 +210,35 @@ function Upload() {
                           1
                       ),
                     timestamp: new Date(),
-                    tags:document.getElementById("tags").value.split(","),
-                    title:fName.split(" ")
-                  }
-                );
-                document.getElementById("tags").value = ""
-                setuploading("Done!!!");
-                toast.success("Video uploaded successfully :)");
-                setuploadChange("choose diffrent video to upload");
-                document.getElementById("submit").disabled = true;
-                setuploadEvent({
-                  currState: "",
-                  pause: "",
-                  resume: "",
-                  cancel: "",
-                });
-                setFile("");
-                setUrl("");
-                document.getElementById("name").value = "";
-              }
-            }, 3000);
-          });
-        }
-      );
-    } else {
-      toast.error("Add file or wait please");
+                    tags: document
+                      .getElementById("tags")
+                      .value.toUpperCase()
+                      .split(",")
+                      .concat(fName.toUpperCase().split(" ")),
+                    title: fName.toUpperCase().split(" "),
+                  });
+                  document.getElementById("tags").value = "";
+                  setuploading("Done!!!");
+                  toast.success("Video uploaded successfully :)");
+                  setuploadChange("choose diffrent video to upload");
+                  document.getElementById("submit").disabled = true;
+                  setuploadEvent({
+                    currState: "",
+                    pause: "",
+                    resume: "",
+                    cancel: "",
+                  });
+                  setFile("");
+                  setUrl("");
+                  document.getElementById("name").value = "";
+                }
+              }, 3000);
+            });
+          }
+        );
+      } else {
+        toast.error("Add file or wait please");
+      }
     }
   }
   return (
@@ -264,7 +282,7 @@ function Upload() {
                 required
               />
             </div>
-            
+
             <div className="grid grid-cols-1 space-y-2">
               <label className="text-sm font-bold text-gray-200 tracking-wide">
                 Attach a video
@@ -311,19 +329,16 @@ function Upload() {
                 </label>
               </div>
               <div className="grid grid-cols-1 space-y-2">
-              <label className="text-sm font-bold text-gray-200 tracking-wide">
-                Tags
-              </label>
-              <input
-                className="font-semibold text-gray-700 placeholder-gray-500 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
-                type="text"
-                id="tags"
-                placeholder="Enter tags, Separated by comma"
-                
-                
-                
-              />
-            </div>
+                <label className="text-sm font-bold text-gray-200 tracking-wide">
+                  Tags
+                </label>
+                <input
+                  className="font-semibold text-gray-700 placeholder-gray-500 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
+                  type="text"
+                  id="tags"
+                  placeholder="Enter tags, Separated by comma"
+                />
+              </div>
             </div>
             {url === "" ? (
               ""
