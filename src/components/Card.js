@@ -13,7 +13,7 @@ function Card(props) {
           className="flex items-center justify-center bg-gray-900"
           style={{ width: "100%", height: "200px" }}
         >
-          <img className="h-full" src={props.thumbnail} alt="props.name" />
+          <img className="h-full w-full object-cover" src={props.thumbnail} alt="props.name" />
         </div>
         <div className="badge absolute top-0 right-0 bg-indigo-500 m-1 text-gray-200 p-1 px-2 text-xs font-bold rounded">
           {props.duration}s
@@ -30,7 +30,8 @@ function Card(props) {
         <div className="desc p-4 text-gray-100">
           <Link
             to="/"
-            className="title font-bold block cursor-pointer hover:underline"
+            className="title font-bold block cursor-pointer hover:underline truncate"
+            
           >
             {props.name}
           </Link>

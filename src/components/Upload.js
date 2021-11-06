@@ -1,13 +1,7 @@
 import { useState } from "react";
 import "./css/upload.css";
 import { useAuth } from "../contexts/Auth";
-import {
-  doc,
-  setDoc,
-  getFirestore,
-  getDoc,
-  collection,
-} from "firebase/firestore";
+import { doc, setDoc, getFirestore, getDoc } from "firebase/firestore";
 import {
   getStorage,
   ref,
@@ -17,10 +11,9 @@ import {
 } from "firebase/storage";
 import { ToastContainer, toast } from "react-toastify";
 function Upload() {
-  document.title = "Upload - IceMemes";
+  document.title = "Upload - Meme Cave";
   const db = getFirestore();
   let thumbnailUrl = "";
-  const [uploading, setuploading] = useState("");
 
   const [url, setUrl] = useState("");
   let thumU = "";
@@ -36,7 +29,7 @@ function Upload() {
   const [fName, setfName] = useState("");
   const storage = getStorage();
   const { currentUser } = useAuth();
-  const [title, setTtitle] = useState("");
+
   let files = "";
   let contentType;
   let video = document.getElementById("video");
@@ -55,10 +48,7 @@ function Upload() {
     context.fillRect(0, 0, w * 0.5, h * 0.5);
     context.drawImage(video, 0, 0, w * 0.5, h * 0.5);
     canvas.toBlob((blob) => {
-      const storageRef = ref(
-        storage,
-        "thumbnails/" + fName
-      );
+      const storageRef = ref(storage, "thumbnails/" + fName);
 
       uploadBytes(storageRef, blob).then((snapshot) => {
         getDownloadURL(snapshot.ref).then((thumbURL) => {
@@ -70,177 +60,196 @@ function Upload() {
   }
 
   // =================== handle input file =========================================================================================
+  function isVideo(file) {
+    const ext = ["mp4", ".mkv", ".avi", ".mov", ".mpeg",".ogm",".vmv","mpg","webm","m4v"];
+    return ext.some((el) => file.endsWith(el));
+  }
   async function handleInput(e) {
     files = await e.target.files[0];
-    if (files.size > 52428800) {
-      setuploadChange("File is too big!");
-      toast.error("Please select file less then 50MB");
-      document.getElementById("submit").disabled = true;
-      e.value = "";
-      setUrl("");
-      setFile("");
+    if (
+      !isVideo(
+        files.name.slice(
+          (Math.max(0, files.name.lastIndexOf(".")) || Infinity) + 1
+        )
+      )
+    ) {
+      toast.error(
+        `The file should be a Video`
+      );
     } else {
-      setUrl(window.URL.createObjectURL(e.target.files[0]));
-      setFile(files);
-      document.getElementById("name").value = files.name
-        .slice(0, -4)
-        .replace(/[^a-zA-Z ]/g, "");
-      setfName(document.getElementById("name").value);
-      document.getElementById("submit").disabled = false;
-      contentType = files.type;
-      setuploadChange("Perfect Upload!!");
+      if (files.size > 52428800) {
+        setuploadChange("File is too big!");
+        toast.error("Please select file less then 50MB");
+        document.getElementById("submit").disabled = true;
+        e.value = "";
+        setUrl("");
+        setFile("");
+      } else {
+        setUrl(window.URL.createObjectURL(e.target.files[0]));
+        setFile(files);
+        if (fName === "") {
+          document.getElementById("name").value = files.name
+            .slice(0, -4)
+            .replace(/[^a-zA-Z ]/g, "");
+          setfName(document.getElementById("name").value);
+        }
+        document.getElementById("submit").disabled = false;
+        contentType = files.type;
+        setuploadChange("Perfect Upload!!");
+      }
     }
   }
   const getName = (event) => {
-    setfName(event.target.value.replace(/[^\w\s]/gi, ""));
-    setTtitle(fName.toUpperCase().split(","));
+    setfName(event.target.value.replace(/[^\w\s]/gi, " "));
   };
 
   async function uploadNow(e) {
     e.preventDefault();
-
-    const docRef = doc(db, "videos", fName);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      console.log("Meme is already uploaded with '" + fName + "' name!!");
-      toast.error("Meme is already uploaded with '" + fName + "' name!!")
-    } else {
-      const Turl = await getThumbnail();
-      const metadata = {
-        contentType: contentType,
-        customMetadata: {
-          name: fName,
-          uploadedBy: currentUser.displayName,
-          email: currentUser.email,
-          thumbnail: Turl,
-        },
-      };
-
-      if (file !== "") {
-        const storageRef = ref(
-          storage,
-          "videos/" +
-            fName +
-            
-            "." +
-            file.name.slice(
-              (Math.max(0, file.name.lastIndexOf(".")) || Infinity) + 1
-            )
-        );
-        const uploadTask = uploadBytesResumable(storageRef, file, metadata);
-        setuploadEvent({
-          currState: "",
-          pause: "",
-          resume: "",
-          cancel: "",
-        });
-
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            setuploadEvent({
-              currState: snapshot.state,
-              pause: () => {
-                uploadTask.pause();
-                toast.info("Upload Paused");
-              },
-              resume: () => {
-                uploadTask.resume();
-                toast.info("Upload resumed");
-              },
-              cancel: () => {
-                uploadTask.cancel();
-                toast.error("Upload canceled");
-
-                setuploadEvent({
-                  currState: "",
-                  pause: "",
-                  resume: "",
-                  cancel: "",
-                });
-
-                setuploadChange("canceled Upload again?");
-                setuploading("");
-              },
-            });
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-
-            setuploading("Uploading " + parseInt(progress) + "%");
-            setUpProgress(parseInt(progress));
-            switch (snapshot.state) {
-              case "paused":
-                setuploadChange("paused");
-                setuploading("paused " + parseInt(progress) + "%");
-                break;
-              case "canceled":
-                break;
-              case "running":
-                setuploadChange("uploading");
-                document.getElementById("submit").disabled = true;
-                setuploading("uploading " + parseInt(progress) + "%");
-                break;
-              default:
-            }
+    if (currentUser !== "" || fName !== "") {
+      const docRef = doc(db, "videos", fName);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        console.log("Meme is already uploaded with '" + fName + "' name!!");
+        toast.error("Meme is already uploaded with '" + fName + "' name!!");
+      } else {
+        const Turl = await getThumbnail();
+        const metadata = {
+          contentType: contentType,
+          customMetadata: {
+            name: fName,
+            uploadedBy: currentUser.displayName,
+            email: currentUser.email,
+            thumbnail: Turl,
           },
-          (error) => {
-            toast.error(error.code);
-          },
-          () => {
-            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-              setTimeout(() => {
-                if (thumbnailUrl) {
-                  setDoc(doc(db, "videos", fName), {
-                    videoName: fName,
-                    url: downloadURL,
-                    uploadedBy: currentUser.displayName,
-                    email: currentUser.email,
-                    thumbnail: thumbnailUrl,
-                    duration: document.getElementById("video").duration,
-                    views: 0,
-                    likes: 0,
-                    dislikes: 0,
-                    likers: [],
-                    dislikers: [],
-                    commenters: [],
-                    ext:
-                      "." +
-                      file.name.slice(
-                        (Math.max(0, file.name.lastIndexOf(".")) || Infinity) +
-                          1
-                      ),
-                    timestamp: new Date(),
-                    tags: document
-                      .getElementById("tags")
-                      .value.toUpperCase()
-                      .split(",")
-                      .concat(fName.toUpperCase().split(" ")),
-                    title: fName.toUpperCase().split(" "),
-                  });
-                  document.getElementById("tags").value = "";
-                  setuploading("Done!!!");
-                  toast.success("Video uploaded successfully :)");
-                  setuploadChange("choose diffrent video to upload");
-                  document.getElementById("submit").disabled = true;
+        };
+
+        if (file !== "") {
+          const storageRef = ref(
+            storage,
+            "videos/" +
+              fName +
+              "." +
+              file.name.slice(
+                (Math.max(0, file.name.lastIndexOf(".")) || Infinity) + 1
+              )
+          );
+          const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+          setuploadEvent({
+            currState: "",
+            pause: "",
+            resume: "",
+            cancel: "",
+          });
+
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              setuploadEvent({
+                currState: snapshot.state,
+                pause: () => {
+                  uploadTask.pause();
+                  toast.info("Upload Paused");
+                },
+                resume: () => {
+                  uploadTask.resume();
+                  toast.info("Upload resumed");
+                },
+                cancel: () => {
+                  uploadTask.cancel();
+                  toast.error("Upload canceled");
+
                   setuploadEvent({
                     currState: "",
                     pause: "",
                     resume: "",
                     cancel: "",
                   });
-                  setFile("");
-                  setUrl("");
-                  document.getElementById("name").value = "";
-                }
-              }, 3000);
-            });
-          }
-        );
-      } else {
-        toast.error("Add file or wait please");
+
+                  setuploadChange("canceled Upload again?");
+                },
+              });
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+
+              setUpProgress(parseInt(progress));
+              switch (snapshot.state) {
+                case "paused":
+                  setuploadChange("paused");
+
+                  break;
+                case "canceled":
+                  break;
+                case "running":
+                  setuploadChange("uploading");
+                  document.getElementById("submit").disabled = true;
+
+                  break;
+                default:
+              }
+            },
+            (error) => {
+              toast.error(error.code);
+            },
+            () => {
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                setTimeout(() => {
+                  if (thumbnailUrl) {
+                    setDoc(doc(db, "videos", fName), {
+                      videoName: fName,
+                      url: downloadURL,
+                      uploadedBy: currentUser.displayName,
+                      email: currentUser.email,
+                      thumbnail: thumbnailUrl,
+                      duration: document.getElementById("video").duration,
+                      views: 0,
+                      likes: 0,
+                      dislikes: 0,
+                      likers: [],
+                      dislikers: [],
+                      commenters: [],
+                      ext:
+                        "." +
+                        file.name.slice(
+                          (Math.max(0, file.name.lastIndexOf(".")) ||
+                            Infinity) + 1
+                        ),
+                      timestamp: new Date(),
+                      tags: document
+                        .getElementById("tags")
+                        .value.toUpperCase()
+                        .split(",")
+                        .concat(fName.toUpperCase().split(" ")),
+                      title: fName.toUpperCase().split(" "),
+                    });
+                    document.getElementById("tags").value = "";
+
+                    toast.success("Video uploaded successfully :)");
+                    setuploadChange("choose diffrent video to upload");
+                    document.getElementById("submit").disabled = true;
+                    setuploadEvent({
+                      currState: "",
+                      pause: "",
+                      resume: "",
+                      cancel: "",
+                    });
+                    setFile("");
+                    setUrl("");
+                    document.getElementById("name").value = "";
+                    setfName("");
+                  }
+                }, 3000);
+              });
+            }
+          );
+        } else {
+          toast.error("Add file or wait please");
+        }
       }
+    } else {
+      toast.error("Enter title or login please");
     }
   }
+
   return (
     <>
       <ToastContainer
@@ -273,11 +282,9 @@ function Upload() {
                 className="font-semibold text-gray-700 placeholder-gray-500 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
                 type="text"
                 id="name"
-                placeholder="enter your meme name"
+                placeholder="Enter Meme Title"
                 onChange={getName}
                 maxLength="60"
-                onKeyPress="return ((event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode == 8 || event.charCode == 32 || (event.charCode >= 48 && event.charCode <= 57));"
-                title="No special characters"
                 value={fName}
                 required
               />
@@ -311,7 +318,7 @@ function Upload() {
                     <p className="pointer-none text-gray-200 ">
                       {url === "" ? (
                         <span className="text-sm">
-                          Drag and drop files here
+                          Click here to select MEME
                         </span>
                       ) : (
                         ""
@@ -330,13 +337,13 @@ function Upload() {
               </div>
               <div className="grid grid-cols-1 space-y-2">
                 <label className="text-sm font-bold text-gray-200 tracking-wide">
-                  Tags
+                  Tags (e.g. Indian,hindi,GTA,game etc.)
                 </label>
                 <input
                   className="font-semibold text-gray-700 placeholder-gray-500 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
                   type="text"
                   id="tags"
-                  placeholder="Enter tags, Separated by comma"
+                  placeholder="Enter tags Separated by comma (Optional)"
                 />
               </div>
             </div>
@@ -344,7 +351,7 @@ function Upload() {
               ""
             ) : (
               <div className="text-gray-400 w-full text-center">
-                Play and Puase at a frame to choose thumbnail
+                Play and Puase at a frame to Add thumbnail
               </div>
             )}
 

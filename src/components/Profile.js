@@ -5,10 +5,7 @@ import {
   collection,
   getDocs,
   getFirestore,
-  limit,
   query,
-  startAfter,
-  orderBy,
   where,
   deleteDoc,
   doc,
@@ -17,12 +14,14 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/Auth";
 import { Link } from "react-router-dom";
 import { MdEdit, MdDeleteForever } from "react-icons/md";
-
+import ProfileInfo from "./ProfileInfo";
+import Sec from "./Sec";
 const db = getFirestore();
 const storage = getStorage();
+
 const Profile = (props) => {
   const { currentUser } = useAuth();
-  document.title = currentUser.displayName+" - IceMemes"
+  document.title = currentUser.displayName + " - Meme Cave";
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -58,24 +57,14 @@ const Profile = (props) => {
   const deleteData = async (video) => {
     setLoading(true);
     try {
-      await deleteDoc(
-        doc(db, "videos", video.videoName)
-      );
+      await deleteDoc(doc(db, "videos", video.videoName));
       // Create a reference to the file to delete
-      const desertRef = ref(
-        storage,
-        "videos/" + video.videoName + video.ext
-      );
+      const desertRef = ref(storage, "videos/" + video.videoName + video.ext);
 
       // Delete the file
       deleteObject(desertRef)
         .then(() => {
-          deleteObject(
-            ref(
-              storage,
-              "thumbnails/" + video.videoName
-            )
-          )
+          deleteObject(ref(storage, "thumbnails/" + video.videoName))
             .then(() => {
               setPosts([]);
               postsFirstBatch(currentUser)
@@ -106,10 +95,7 @@ const Profile = (props) => {
       {posts.map((e) => {
         return (
           <div>
-            <div
-              // to={"/video/" + e.name + e.email.slice(0, -4)}
-              className=" each mb-10 sm:m-2  bg-gray-800 relative block duration-500  transition-all   text-gray-100"
-            >
+            <div className=" each mb-10 sm:m-2  bg-gray-800 relative block duration-500  transition-all   text-gray-100">
               <div
                 className="flex items-center justify-center bg-gray-900"
                 style={{ width: "100%", height: "200px" }}
@@ -181,9 +167,26 @@ const Profile = (props) => {
           <PulseLoader color={"#b5b5b5"} loading={true} size={20} />
         </div>
       ) : (
-        <div className="grid grid-cols-1 2xl:grid-cols-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-8 bg-gray-900">
-          {allPosts}
-        </div>
+        <>
+          <Sec
+            link=""
+            title=""
+            content={
+              <>
+               
+                <ProfileInfo />
+                <Sec
+                   link=""
+                    title="your uploads"
+                      content={
+                            <div className="grid grid-cols-1 2xl:grid-cols-3 sm:grid-cols-2 xl:grid-cols-3 sm:p-8 bg-transparent">
+                          {allPosts}
+                            </div>}
+                      />
+              </>
+            }
+          />
+        </>
       )}
     </>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useRouteMatch, Link, useLocation } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import {
   collection,
   getDoc,
@@ -10,6 +10,8 @@ import {
   arrayUnion,
   arrayRemove,
   onSnapshot,
+  query,
+  limit
 } from "firebase/firestore";
 import { ToastContainer, toast } from "react-toastify";
 import Sec from "./Sec";
@@ -26,7 +28,7 @@ import PulseLoader from "react-spinners/PulseLoader";
 import { useAuth } from "../contexts/Auth";
 
 function Video() {
-  const location = useLocation();
+  
   const { currentUser } = useAuth();
   const db = getFirestore();
   const d = useParams();
@@ -37,14 +39,15 @@ function Video() {
 
   useEffect(() => {
     let { name } = d;
+    console.log(name)
     onSnapshot(doc(db, "videos", name), (doc) => {
       setRealTimeData(doc.data());
     });
-  }, [location]);
+  }, [d,db]);
 
   // views--------------------------------------------------------------------------------------
   async function addView(video, cviews) {
-    // Add a new document in collection "cities"
+    
     await updateDoc(doc(db, "videos", video), {
       views: cviews + 1,
     });
@@ -84,13 +87,13 @@ function Video() {
         likes: data.likers.length,
       });
     } catch (error) {
-      toast.error("Please LogIn to dislike this video");
+      toast.error("Please Login to dislike this video");
     }
   }
 
   // getting side videos data==============================================================================
   const get = async () => {
-    const querySnapshot = await getDocs(collection(db, "videos"));
+    const querySnapshot = await getDocs(query(collection(db, "videos"),limit(8)));
     let d = [];
     querySnapshot.forEach((doc) => {
       d.push(doc.data());
@@ -119,10 +122,10 @@ function Video() {
 
     if (docSnap.exists()) {
       addView(
-        docSnap.data().videoName + docSnap.data(),
+        docSnap.data().videoName,
         docSnap.data().views
       );
-      document.title = docSnap.data().videoName + " - IceMemes";
+      document.title = docSnap.data().videoName + " - Meme Cave";
       setData(docSnap.data());
       setLoading(false);
       window.scrollTo({
@@ -137,7 +140,7 @@ function Video() {
     let { name } = d;
     getdata(name);
     get();
-  }, [location]);
+  }, []);
 
   return (
     <>
@@ -172,7 +175,7 @@ function Video() {
                   <div>
                     <div className="flex items-center justify-center bg-gray-900 w-full md:h-96">
                       <video
-                        className="h-60 md:h-full"
+                        className="h-60 w-full md:h-full object-cover"
                         autoPlay
                         controls
                         src={data.url}
@@ -186,10 +189,10 @@ function Video() {
                       <div className="flex sm:justify-between flex-col sm:flex-row">
                         {" "}
                         <div>
-                          <Link className="">
+                          <div className="">
                             <span className="text-red-500">@</span>
                             {data.uploadedBy}
-                          </Link>
+                          </div>
                           <div className="">{realTimeData.views} views</div>
                         </div>
                         <div className="flex items-center text-gray-500">
@@ -264,13 +267,13 @@ function Video() {
                           >
                             <img
                               alt=""
-                              className="h-full w-full"
+                              className="h-48 w-full object-cover"
                               src={vid.thumbnail}
                             />
                           </div>
 
                           <div className="p-2">
-                            <h6 className="text-lg font-medium">
+                            <h6 className="text-lg font-medium truncate">
                               {vid.videoName}
                             </h6>
                             <div className="">@{vid.uploadedBy}</div>

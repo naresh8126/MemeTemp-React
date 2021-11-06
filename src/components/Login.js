@@ -1,11 +1,11 @@
 import React from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/Auth";
 import { ToastContainer, toast } from "react-toastify";
 
 function Login() {
-  const history = useHistory();
-  document.title = "Login - IceMemes"
+  
+  document.title = "Login - Meme Cave"
   const [errorMessage, setErrorMessage] = React.useState("");
   const { signWthGoogle, Login } = useAuth();
   const [user, setUser] = React.useState({
@@ -120,7 +120,7 @@ function Login() {
             </div>
             <div className="w-full py-6 z-20">
               <Link to="/" className="text-5xl my-6 font-bold">
-                IceMemes
+                Meme Cave
               </Link>
               <div className="py-6 space-x-2">
                 <button

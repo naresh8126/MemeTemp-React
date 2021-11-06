@@ -1,12 +1,12 @@
 import React, { useContext } from "react";
-import { Link, Redirect, useHistory } from "react-router-dom";
+import { Link, Navigate,  } from "react-router-dom";
 import { useAuth } from "../contexts/Auth";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 function Register() {
-  document.title = "Register - IceMemes"
-  const history = useHistory();
+  document.title = "Register - Meme Cave"
+  
   const { signWthGoogle, Register } = useAuth();
   const [user, setUser] = React.useState({
     username: "",
@@ -118,7 +118,7 @@ function Register() {
             </div>
             <div className="w-full py-6 z-20">
               <Link to="/" className="text-5xl my-6 font-bold">
-                IceMemes
+                Meme Cave
               </Link>
               <div className="py-6 space-x-2">
                 <button

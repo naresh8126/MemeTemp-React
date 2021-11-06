@@ -1,5 +1,5 @@
 import React from "react";
-
+import pic from './user.png'
 function Dropdown(props) {
   return (
     <>
@@ -14,7 +14,7 @@ function Dropdown(props) {
               aria-controls="headlessui-menu-items-117"
             >
               {props.img !== "" ? (
-                <img className="rounded-full w-8 h-8" src={props.img} alt="" />
+                <img className="rounded-full w-8 h-8" src={props.img || pic} alt="" />
               ) : (
                 ""
               )}

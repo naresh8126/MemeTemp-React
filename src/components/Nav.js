@@ -1,11 +1,12 @@
-import React, { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import React from "react";
+import { Link } from "react-router-dom";
 import "./css/nav.css";
 import { useAuth } from "../contexts/Auth";
 import Dropdown from "./Dropdown";
 import pic from "./user.png";
+import arrow from "./arrow.webp";
 import { useMediaQuery } from "react-responsive";
-import { BsUpload } from "react-icons/bs";
+
 const Nav = () => {
   const { currentUser, SignOut } = useAuth();
   const isTabletOrMobile = useMediaQuery({ query: "(max-width: 750px)" });
@@ -23,10 +24,7 @@ const Nav = () => {
           to="/profile"
           className="inline-block hover:bg-gray-700  align-middle px-8 py-2 font-medium text-left w-full  text-gray-100"
         >
-          {currentUser.displayName === null ||
-          currentUser.displayName === undefined
-            ? "Profile"
-            : currentUser.displayName}
+          Profile
         </Link>
         {isTabletOrMobile && (
           <>
@@ -39,9 +37,9 @@ const Nav = () => {
           </>
         )}
         {isDesktopOrLaptop && <></>}
-        <hr />
+        <hr className="my-2" />
         <button
-          className=" hover:bg-gray-200  bg-gray-100   align-middle px-2 font-medium text-center  w-full h-8 text-red-600 font-extrabold"
+          className=" hover:bg-red-700  bg-red-600   align-middle px-2 font-medium text-center  w-full h-8 text-gray-100 font-extrabold"
           onClick={SignOut}
         >
           Log Out
@@ -88,7 +86,7 @@ const Nav = () => {
           <div id="right">
             <ul>
               <li className="mobile">
-                <Link to="/">
+                <Link to="/memes/latest">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     enable-background="new 0 0 24 24"
@@ -158,14 +156,16 @@ const Nav = () => {
                       SIGN IN
                     </Link>
                   </li>
-                  <li id="signup">
-                    <Link to="/register">CREATE AN ACCOUNT</Link>
+                  <li>
+                    <Link id="signup" to="/register">
+                      CREATE AN ACCOUNT
+                    </Link>
                   </li>
                 </>
               ) : (
                 <>
                   <li>
-                    <Dropdown img={pic} content={<ProfileMenu />} />
+                    <Dropdown img={currentUser.photoURL} content={<ProfileMenu />} />
                   </li>
                 </>
               )}
@@ -218,7 +218,7 @@ const Nav = () => {
               }
             />
             {currentUser !== "" ? (
-              <Dropdown img={pic} content={<ProfileMenu />} />
+              <Dropdown img={currentUser.photoURL} content={<ProfileMenu />} />
             ) : (
               <div className="flex justify-center items-center flex-col">
                 <Link className="flex justify-center items-center " to="/login">
@@ -240,6 +240,13 @@ const Nav = () => {
           </div>
         </div>
       </nav>
+      <a className="fixed  right-8 bottom-8" href="#"><img
+        width="50px"
+        className=" transform transition duration-500 ease-in-out hover:scale-110 "
+        src={arrow}
+        alt="up"
+      /></a>
+      
     </>
   );
 };

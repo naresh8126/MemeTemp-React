@@ -7,36 +7,42 @@ import {
   getFirestore,
   limit,
   query,
-  startAfter,
   orderBy,
-  where,
+  updateDoc,
+  doc
 } from "firebase/firestore";
-import fic from "../static/fic.png";
+
 import { ToastContainer, toast } from "react-toastify";
 import { useEffect, useState } from "react";
 const db = getFirestore();
 
 const Section = (props) => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     postsFirstBatch();
   }, []);
   function shuffle(array) {
-    let currentIndex = array.length,  randomIndex;
-  
+    let currentIndex = array.length,
+      randomIndex;
+
     // While there remain elements to shuffle...
     while (currentIndex !== 0) {
-  
       // Pick a remaining element...
       randomIndex = Math.floor(Math.random() * currentIndex);
       currentIndex--;
-  
+
       // And swap it with the current element.
       [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex], array[currentIndex]];
+        array[randomIndex],
+        array[currentIndex],
+      ];
     }
-  
+
     return array;
   }
   const postsFirstBatch = async () => {
@@ -44,9 +50,7 @@ const Section = (props) => {
       const videoRef = collection(db, "videos");
 
       if (props.orderBy === "random") {
-        const data = await getDocs(
-          query(videoRef, limit(6))
-        );
+        const data = await getDocs(query(videoRef, limit(6)));
         let posts = [];
         data.forEach((doc) => {
           posts.push(doc.data());
@@ -56,7 +60,7 @@ const Section = (props) => {
       } else {
         const data = await getDocs(
           query(videoRef, orderBy(props.orderBy, "desc"), limit(6))
-        ); 
+        );
         let posts = [];
         data.forEach((doc) => {
           posts.push(doc.data());
@@ -72,6 +76,10 @@ const Section = (props) => {
   const allPosts = (
     <>
       {posts.map((e) => {
+         updateDoc(doc(db,"videos",e.videoName),{
+          likes:e.likers.length,
+          dislikes:e.dislikers.length
+        });
         return (
           <div>
             <Card

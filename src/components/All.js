@@ -22,7 +22,7 @@ const All = (props) => {
   const d = useParams();
   let { type } = d;
   
-  document.title = type+" Memes - IceMemes";
+  document.title = type+" Memes - Meme Cave";
   const [posts, setPosts] = useState([]);
   const [lastKey, setLastKey] = useState("");
   const [nextPostsloading, setNextPostsLoading] = useState(false);
