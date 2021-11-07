@@ -1,7 +1,14 @@
 import { useState } from "react";
 import "./css/upload.css";
 import { useAuth } from "../contexts/Auth";
-import { doc, setDoc, getFirestore, getDoc } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  getFirestore,
+  getDoc,
+  FieldValue,
+  updateDoc,
+} from "firebase/firestore";
 import {
   getStorage,
   ref,
@@ -28,7 +35,7 @@ function Upload() {
   const [uploadChange, setuploadChange] = useState("upload");
   const [fName, setfName] = useState("");
   const storage = getStorage();
-  const { currentUser } = useAuth();
+  const { currentUser,userData } = useAuth();
 
   let files = "";
   let contentType;
@@ -61,7 +68,18 @@ function Upload() {
 
   // =================== handle input file =========================================================================================
   function isVideo(file) {
-    const ext = ["mp4", ".mkv", ".avi", ".mov", ".mpeg",".ogm",".vmv","mpg","webm","m4v"];
+    const ext = [
+      "mp4",
+      ".mkv",
+      ".avi",
+      ".mov",
+      ".mpeg",
+      ".ogm",
+      ".vmv",
+      "mpg",
+      "webm",
+      "m4v",
+    ];
     return ext.some((el) => file.endsWith(el));
   }
   async function handleInput(e) {
@@ -73,9 +91,7 @@ function Upload() {
         )
       )
     ) {
-      toast.error(
-        `The file should be a Video`
-      );
+      toast.error(`The file should be a Video`);
     } else {
       if (files.size > 52428800) {
         setuploadChange("File is too big!");
@@ -193,6 +209,10 @@ function Upload() {
             () => {
               getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                 setTimeout(() => {
+                const userUpdate = doc(db, "users", currentUser.uid);
+                 updateDoc(userUpdate, {
+                    uploads:userData.uploads + 1
+                  });
                   if (thumbnailUrl) {
                     setDoc(doc(db, "videos", fName), {
                       videoName: fName,
@@ -220,6 +240,7 @@ function Upload() {
                         .split(",")
                         .concat(fName.toUpperCase().split(" ")),
                       title: fName.toUpperCase().split(" "),
+                      uploader_uid: currentUser.uid,
                     });
                     document.getElementById("tags").value = "";
 
@@ -237,7 +258,7 @@ function Upload() {
                     document.getElementById("name").value = "";
                     setfName("");
                   }
-                }, 3000);
+                }, 1000);
               });
             }
           );

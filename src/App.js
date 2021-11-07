@@ -38,14 +38,7 @@ function App() {
               </PrivateRoute>
             }
           />
-          <Route
-            path="/profile"
-            element={
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            }
-          />
+         
           <Route
             path="/profile/edit"
             element={
@@ -72,6 +65,7 @@ function App() {
             }
           />
           <Route path="video/:name" element={<Video />} />
+          <Route path="user/:uid" element={<Profile />} />
           <Route path="/" element={<Main />} />
 
           <Route

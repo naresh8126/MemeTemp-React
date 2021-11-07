@@ -9,7 +9,13 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  updateDoc,
+  getDoc,
+} from "firebase/firestore";
 
 import { useNavigate, useLocation } from "react-router-dom";
 const provider = new GoogleAuthProvider();
@@ -23,6 +29,7 @@ export const useAuth = () => {
 export function AuthProvider({ children }) {
   const location = useLocation();
   const Navigate = useNavigate();
+
   useEffect(() => {
     auth.onAuthStateChanged(async (user) => {
       if (user) {
@@ -32,6 +39,7 @@ export function AuthProvider({ children }) {
 
         if (docSnap.exists()) {
           setuserData(docSnap.data());
+          console.log("chenged4");
         } else {
         }
         console.log(currentUser);
@@ -47,17 +55,30 @@ export function AuthProvider({ children }) {
   async function signWthGoogle() {
     const result = await signInWithPopup(auth, provider);
     try {
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      const token = credential.accessToken;
-      // The signed-in user info.
       const user = result.user;
-      setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        username: user.displayName,
-        email: user.email,
-        ig: "",
-        bio: "",
-      });
+      if (user.metadata.creationTime === user.metadata.lastSignInTime) {
+        // The user is new, show them a fancy intro screen!
+        setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          ig: "",
+          bio: "",
+          banner: "",
+          uploads: 0,
+          followers: [],
+          following: [],
+        });
+      } else {
+        updateDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          displayName: user.displayName,
+          email: user.email,
+          
+        });
+      }
+
       Navigate("/");
     } catch (error) {
       const errorMessage = error.message;
@@ -92,6 +113,11 @@ export function AuthProvider({ children }) {
         email: email,
         ig: "",
         bio: "",
+        banner: "",
+        photoURL: "",
+        uploads: 0,
+        followers: [],
+        following: [],
       });
       updateProfile(result.user, {
         displayName: username,

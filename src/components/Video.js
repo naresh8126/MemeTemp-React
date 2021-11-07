@@ -11,8 +11,9 @@ import {
   arrayRemove,
   onSnapshot,
   query,
-  limit
+  limit,
 } from "firebase/firestore";
+import pic from "./user.png";
 import { ToastContainer, toast } from "react-toastify";
 import Sec from "./Sec";
 
@@ -28,72 +29,99 @@ import PulseLoader from "react-spinners/PulseLoader";
 import { useAuth } from "../contexts/Auth";
 
 function Video() {
-  
-  const { currentUser } = useAuth();
+  const { currentUser, userDate } = useAuth();
   const db = getFirestore();
   const d = useParams();
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState();
-  const [realTimeData, setRealTimeData] = useState();
+  const [data, setData] = useState("");
+  const [realTimeData, setRealTimeData] = useState("");
   const [sidedata, setSideData] = useState([]);
-
+  const [uploader, setuploader] = useState("");
+  const [available, setavailable] = useState(true)
   useEffect(() => {
     let { name } = d;
-    console.log(name)
+    console.log(name);
     onSnapshot(doc(db, "videos", name), (doc) => {
       setRealTimeData(doc.data());
     });
-  }, [d,db]);
+  }, [d, db]);
 
   // views--------------------------------------------------------------------------------------
   async function addView(video, cviews) {
-    
     await updateDoc(doc(db, "videos", video), {
       views: cviews + 1,
     });
   }
-
-  // like function ======================================================================================
-  async function addLike() {
+  useEffect(() => {
     try {
-      await updateDoc(
-        doc(db, "videos", data.videoName),
-        {
-          likers: arrayUnion(currentUser.email),
-          dislikers: arrayRemove(currentUser.email),
-        }
-      );
+      updateDoc(doc(db, "videos", realTimeData.videoName), {
+        dislikes: realTimeData.dislikers.length,
+        likes: realTimeData.likers.length,
+      }); 
+    } catch (error) {
+     
+    }
+    
+    
+  }, [realTimeData]);
+
+  // follow function ======================================================================================
+  function unFollow() {
+    try {
+      updateDoc(doc(db, "users", data.uploader_uid), {
+        followers: arrayRemove(currentUser.uid),
+      });
+      updateDoc(doc(db, "users", currentUser.uid), {
+        following: arrayRemove(currentUser.uid),
+      });
+      toast.success("You Unfollowed " + uploader.displayName);
+    } catch (error) {
+      toast.error("Please login to unfollow");
+    }
+  }
+  // unfollow function ======================================================================================
+  function follow() {
+    try {
+      updateDoc(doc(db, "users", data.uploader_uid), {
+        followers: arrayUnion(currentUser.uid),
+      });
+      updateDoc(doc(db, "users", currentUser.uid), {
+        following: arrayUnion(currentUser.uid),
+      });
+      toast.success("You Followed " + uploader.displayName);
+    } catch (error) {
+      toast.error("Please login to follow");
+    }
+  }
+  // like function ======================================================================================
+  function addLike() {
+    try {
       updateDoc(doc(db, "videos", data.videoName), {
-        dislikes: data.dislikers.length,
-        likes: data.likers.length,
+        likers: arrayUnion(currentUser.uid),
+        dislikers: arrayRemove(currentUser.uid),
       });
     } catch (error) {
-      toast.error("Please LogIn to like this video");
+      toast.error("Please login to like this video");
     }
   }
 
   // dislike function====================================================================================
-  async function addDislike() {
+  function addDislike() {
     try {
-      await updateDoc(
-        doc(db, "videos", data.videoName),
-        {
-          dislikers: arrayUnion(currentUser.email),
-          likers: arrayRemove(currentUser.email),
-        }
-      );
       updateDoc(doc(db, "videos", data.videoName), {
-        dislikes: data.dislikers.length,
-        likes: data.likers.length,
+        dislikers: arrayUnion(currentUser.uid),
+        likers: arrayRemove(currentUser.uid),
       });
     } catch (error) {
-      toast.error("Please Login to dislike this video");
+      toast.error("Please login to dislike this video");
     }
   }
 
   // getting side videos data==============================================================================
   const get = async () => {
-    const querySnapshot = await getDocs(query(collection(db, "videos"),limit(8)));
+    const querySnapshot = await getDocs(
+      query(collection(db, "videos"), limit(8))
+    );
     let d = [];
     querySnapshot.forEach((doc) => {
       d.push(doc.data());
@@ -121,11 +149,11 @@ function Video() {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      addView(
-        docSnap.data().videoName,
-        docSnap.data().views
-      );
+      addView(docSnap.data().videoName, docSnap.data().views);
       document.title = docSnap.data().videoName + " - Meme Cave";
+      onSnapshot(doc(db, "users", docSnap.data().uploader_uid), (doc) => {
+        setuploader(doc.data());
+      });
       setData(docSnap.data());
       setLoading(false);
       window.scrollTo({
@@ -133,17 +161,20 @@ function Video() {
         behavior: "smooth",
       });
     } else {
-      // doc.data() will be undefined in this case
+      toast.error("Can't find video")
+      setavailable(false)
     }
   }
   useEffect(() => {
     let { name } = d;
     getdata(name);
     get();
+    console.log(data);
   }, []);
 
   return (
     <>
+
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -154,6 +185,7 @@ function Video() {
         pauseOnFocusLoss
         pauseOnHover
       />
+      {available?<>
       {loading ? (
         <div
           id="loader"
@@ -186,14 +218,13 @@ function Video() {
                       <div className="text-lg font-medium">
                         {data.videoName}
                       </div>
-                      <div className="flex sm:justify-between flex-col sm:flex-row">
+                      <div className="flex sm:justify-between sm:flex-row text-gray-400">
                         {" "}
                         <div>
                           <div className="">
-                            <span className="text-red-500">@</span>
-                            {data.uploadedBy}
+                            {realTimeData.views} views -{" "}
+                            {data.timestamp.toDate().toDateString()}
                           </div>
-                          <div className="">{realTimeData.views} views</div>
                         </div>
                         <div className="flex items-center text-gray-500">
                           <IconContext.Provider
@@ -204,9 +235,7 @@ function Video() {
                             }}
                           >
                             <>
-                              {realTimeData.likers.includes(
-                                currentUser.email
-                              ) ? (
+                              {realTimeData.likers.includes(currentUser.uid) ? (
                                 <AiTwotoneLike
                                   onClick={() => {
                                     addLike();
@@ -221,7 +250,7 @@ function Video() {
                               )}
                               {realTimeData.likers.length}
                               {realTimeData.dislikers.includes(
-                                currentUser.email
+                                currentUser.uid
                               ) ? (
                                 <AiTwotoneDislike
                                   onClick={() => {
@@ -244,6 +273,47 @@ function Video() {
                       </div>
                     </div>
                     <hr />
+                    {uploader === "" ? (
+                      ""
+                    ) : (
+                      <div className="w-full h-16 flex items-center p-4 bg-gray-800 justify-between text-lg">
+                        <Link
+                          to={`/user/${data.uploader_uid}`}
+                          className="flex items-center "
+                        >
+                          <img
+                            className="mr-2 rounded-full"
+                            width="50px"
+                            height="50px"
+                            src={uploader.photoURL || pic}
+                            alt="photoURL"
+                          />
+                          <div className="flex flex-col text-sm">
+                            <div>{uploader.displayName}</div>
+                            <div className="opacity-50">Followers {uploader.followers.length}</div>
+                          </div>
+                        </Link>
+                        {uploader.followers.includes(currentUser.uid) ? (
+                          <button
+                            className="bg-gray-500 hover:bg-gray-700  p-2 px-4"
+                            onClick={() => {
+                              unFollow();
+                            }}
+                          >
+                            unFollow
+                          </button>
+                        ) : (
+                          <button
+                            className="bg-blue-500 hover:bg-blue-600  p-2 px-4"
+                            onClick={() => {
+                              follow();
+                            }}
+                          >
+                            Follow
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -253,12 +323,10 @@ function Video() {
                   : sidedata.map((vid) => {
                       return (
                         <Link
-                          to={
-                            "/video/" + vid.videoName 
-                          }
+                          to={"/video/" + vid.videoName}
                           className="md:hover:bg-gray-800 p-2 flex flex-col w-full mb-4"
                           onClick={() => {
-                            getdata(vid.videoName );
+                            getdata(vid.videoName);
                           }}
                         >
                           <div
@@ -286,7 +354,8 @@ function Video() {
             </div>
           }
         />
-      )}
+      )}</>
+      :""}
     </>
   );
 }

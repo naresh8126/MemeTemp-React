@@ -4,6 +4,7 @@ import { getStorage, ref, deleteObject } from "firebase/storage";
 import {
   collection,
   getDocs,
+  getDoc,
   getFirestore,
   query,
   where,
@@ -12,36 +13,44 @@ import {
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/Auth";
-import { Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { MdEdit, MdDeleteForever } from "react-icons/md";
 import ProfileInfo from "./ProfileInfo";
 import Sec from "./Sec";
 const db = getFirestore();
 const storage = getStorage();
-
+ 
 const Profile = (props) => {
+  const d = useParams();
+  let { uid } = d;
   const { currentUser } = useAuth();
-  document.title = currentUser.displayName + " - Meme Cave";
+  const [user, setuser] = useState("")
+  getDoc(doc(db, "users", uid)).then((u) => {
+    setuser(u.data());
+    document.title = u.data().displayName + " - Meme Cave";
+  });
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    postsFirstBatch(currentUser)
+    postsFirstBatch(user)
       .then((res) => {
         setPosts(res.posts);
         setLoading(false);
       })
-      .catch((err) => {});
-  }, []);
+      .catch((err) => {
+        console.log(err)
+      });
+  }, [user]);
 
   const postsFirstBatch = async (c) => {
-    const currentUser = c;
+    const u = c;
     try {
       const data = await getDocs(
         query(
           collection(db, "videos"),
 
-          where("email", "==", currentUser.email)
+          where("email", "==", u.email)
         )
       );
       let posts = [];
@@ -67,7 +76,7 @@ const Profile = (props) => {
           deleteObject(ref(storage, "thumbnails/" + video.videoName))
             .then(() => {
               setPosts([]);
-              postsFirstBatch(currentUser)
+              postsFirstBatch(user)
                 .then((res) => {
                   setPosts(res.posts);
                   setLoading(false);
@@ -105,7 +114,7 @@ const Profile = (props) => {
               <div className="badge absolute top-0 right-0 bg-indigo-500 m-1 text-gray-200 p-1 px-2 text-xs font-bold rounded">
                 {parseInt(e.duration)}s
               </div>
-              <div className="absolute top-0 left-0">
+              {user.uid === currentUser.uid?<div className="absolute top-0 left-0">
                 <div className="badge  bg-red-500 m-1 text-gray-100 p-1 px-2 text-md font-bold rounded hover:bg-red-800">
                   <MdDeleteForever
                     onClick={() => {
@@ -120,7 +129,8 @@ const Profile = (props) => {
                     }}
                   />
                 </div>
-              </div>
+              </div>:""}
+              
 
               <div className="info-box text-xs flex p-1 font-semibold text-gray-200 bg-gray-800">
                 <span className="mr-1 p-1 px-2 font-bold">{e.views} views</span>
@@ -174,7 +184,7 @@ const Profile = (props) => {
             content={
               <>
                
-                <ProfileInfo />
+                <ProfileInfo user={user} />
                 <Sec
                    link=""
                     title="your uploads"

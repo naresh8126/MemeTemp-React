@@ -21,7 +21,7 @@ const Nav = () => {
     return (
       <>
         <Link
-          to="/profile"
+          to={`/user/${currentUser.uid}`}
           className="inline-block hover:bg-gray-700  align-middle px-8 py-2 font-medium text-left w-full  text-gray-100"
         >
           Profile
@@ -240,7 +240,7 @@ const Nav = () => {
           </div>
         </div>
       </nav>
-      <a className="fixed  right-8 bottom-8" href="#"><img
+      <a className="fixed  right-8 bottom-8 z-10" href="#"><img
         width="50px"
         className=" transform transition duration-500 ease-in-out hover:scale-110 "
         src={arrow}

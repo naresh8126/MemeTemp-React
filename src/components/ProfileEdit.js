@@ -3,7 +3,16 @@ import Sec from "./Sec";
 import pic from "./user.png";
 import bg from "./bg.jpg";
 import { useAuth } from "../contexts/Auth";
-import { doc, updateDoc, getFirestore } from "firebase/firestore";
+import PulseLoader from "react-spinners/PulseLoader";
+import {
+  doc,
+  updateDoc,
+  getFirestore,
+  getDocs,
+  where,
+  query,
+  collection,
+} from "firebase/firestore";
 import { getAuth, updateEmail, updateProfile } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { ToastContainer, toast } from "react-toastify";
@@ -13,15 +22,16 @@ function ProfileEdit() {
   const auth = getAuth();
   const db = getFirestore();
   const storage = getStorage();
-
+  const [loading, setLoading] = React.useState(false)
   const rUser = auth.currentUser;
   const [ppState, setPp] = React.useState(rUser.photoURL || "");
   const [bgState, setBg] = React.useState(userData.banner || "");
   const [user, setUser] = React.useState({
     username: currentUser.displayName,
-    email: currentUser.email,
+    
     ig: userData.ig,
     bio: userData.bio,
+    pass:""
   });
 
   let name, value;
@@ -32,24 +42,22 @@ function ProfileEdit() {
   };
   const uProfilPic = async (e) => {
     const file = await e.target.files[0];
-
     const storageRef = ref(storage, "userPics/" + rUser.uid);
     uploadBytes(storageRef, file).then((snapshot) => {
       getDownloadURL(snapshot.ref).then((url) => {
         setPp(url);
-        toast.success("Profile Pic Uploaded")
+        toast.success("Profile Pic Uploaded");
         console.log("uploaded " + url);
       });
     });
   };
   const uBanner = async (e) => {
     const file = await e.target.files[0];
-
     const storageRef = ref(storage, "banners/" + rUser.uid);
     uploadBytes(storageRef, file).then((snapshot) => {
       getDownloadURL(snapshot.ref).then((url) => {
         setBg(url);
-        toast.success("Banner Uploaded")
+        toast.success("Banner Uploaded");
         console.log("uploaded " + url);
       });
     });
@@ -57,27 +65,50 @@ function ProfileEdit() {
 
   const submit = async (e) => {
     e.preventDefault();
+    setLoading(true)
+    
+    
     console.log(user);
-    try {
+    try { 
       const userUpdate = doc(db, "users", currentUser.uid);
-      updateDoc(userUpdate, {
+      await updateDoc(userUpdate, {
         displayName: user.username,
-        email: user.email,
         ig: user.ig,
         bio: user.bio,
         photoURL: ppState,
         banner: bgState,
       });
-      updateEmail(currentUser, user.email);
-      updateProfile(currentUser, {
+      await updateEmail(currentUser, user.email);
+      await updateProfile(currentUser, {
         displayName: user.username,
         photoURL: ppState,
         banner: bgState,
       });
-      toast.success("Profile Updated")
+      const data = await getDocs(
+        query(
+          collection(db, "videos"),
+          where("uploader_uid", "==", currentUser.uid)
+        )
+      );
+      setLoading(false)
+      toast.success("Profile Updated");
+      try {
+        data.forEach((e) => {
+          updateDoc(doc(db, "videos", e.data().videoName), {
+            uploadedBy: user.username,
+           
+          }).then(() => {
+            setLoading(false)
+            toast.success("Profile Updated");
+          });
+        });
+        
+      } catch (error) {
+        
+      }
     } catch (error) {
       console.log(error);
-      toast.error(error.code)
+      toast.error(error.code);
     }
   };
   return (
@@ -92,7 +123,12 @@ function ProfileEdit() {
         pauseOnFocusLoss
         pauseOnHover
       />
-      <Sec
+      {loading?<div
+          id="loader"
+          className="bg-gray-900 w-full h-screen flex justify-center	items-center"
+        >
+          <PulseLoader color={"#b5b5b5"} loading={true} size={20} />
+        </div>:<Sec
         title="Edit your profile"
         content={
           <div className="flex flex-col bg-gray-800 sm:w-3/5 text-gray-100 mx-auto">
@@ -144,19 +180,7 @@ function ProfileEdit() {
                 onChange={getdata}
                 value={user.username}
               />
-              <label className="text-gray-300" htmlFor="email">
-                Email
-              </label>
-              <input
-                name="email"
-                placeholder="New Email Address"
-                className="bg-gray-900 p-2 w-full my-2"
-                type="email"
-                maxLength="40"
-                onChange={getdata}
-                value={user.email}
-              />
-
+             
               <h1 className="font-bold text-3xl mt-8">Other Information</h1>
               <label className="text-gray-300 mt-8" htmlFor="ig">
                 Instagram User ID
@@ -191,7 +215,8 @@ function ProfileEdit() {
           </div>
         }
         link=""
-      />
+      />}
+      
     </div>
   );
 }

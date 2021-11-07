@@ -263,16 +263,7 @@ const All = (props) => {
         return (
           <div>
             <Card
-              name={e.videoName}
-              email={e.email}
-              uploaderName={e.uploadedBy}
-              uploadTime=""
-              thumbnail={e.thumbnail}
-              download={e.url}
-              duration={parseInt(e.duration)}
-              likes={e.likes}
-              views={e.views}
-              dislikes={e.dislikes}
+              video={e}
             />
           </div>
         );
