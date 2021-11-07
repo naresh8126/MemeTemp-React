@@ -21,7 +21,7 @@ const Nav = () => {
     return (
       <>
         <Link
-          to={`/user/${currentUser.uid}`}
+          to={`/user/${currentUser.uid}/profile`}
           className="inline-block hover:bg-gray-700  align-middle px-8 py-2 font-medium text-left w-full  text-gray-100"
         >
           Profile

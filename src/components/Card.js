@@ -45,7 +45,7 @@ function Card(props) {
             {props.video.videoName}
           </Link>
           <Link
-            to={`/user/${props.video.uploader_uid}`}
+            to={`/user/${props.video.uploader_uid}/profile`}
             className="badge bg-indigo-500 text-blue-100 rounded px-1 text-xs font-bold cursor-pointer"
           >
             @{props.video.uploadedBy}

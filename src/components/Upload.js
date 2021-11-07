@@ -18,7 +18,7 @@ import {
 } from "firebase/storage";
 import { ToastContainer, toast } from "react-toastify";
 function Upload() {
-  document.title = "Upload - Meme Cave";
+  document.title = "Upload Memes - Meme Cave";
   const db = getFirestore();
   let thumbnailUrl = "";
 

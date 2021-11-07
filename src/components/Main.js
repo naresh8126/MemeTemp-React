@@ -3,7 +3,7 @@ import Section from "./Section";
 import Hero from "./Hero";
 import Sec from "./Sec";
 function Main() {
-  document.title = "Meme Cave";
+  document.title = "MemeCave";
   return (
     <div style={{ background: "#191c23;" }}>
       <Hero />

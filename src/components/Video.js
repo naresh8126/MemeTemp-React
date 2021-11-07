@@ -72,7 +72,7 @@ function Video() {
         followers: arrayRemove(currentUser.uid),
       });
       updateDoc(doc(db, "users", currentUser.uid), {
-        following: arrayRemove(currentUser.uid),
+        following: arrayRemove(data.uploader_uid),
       });
       toast.success("You Unfollowed " + uploader.displayName);
     } catch (error) {
@@ -86,7 +86,7 @@ function Video() {
         followers: arrayUnion(currentUser.uid),
       });
       updateDoc(doc(db, "users", currentUser.uid), {
-        following: arrayUnion(currentUser.uid),
+        following: arrayUnion(data.uploader_uid),
       });
       toast.success("You Followed " + uploader.displayName);
     } catch (error) {
@@ -150,7 +150,7 @@ function Video() {
 
     if (docSnap.exists()) {
       addView(docSnap.data().videoName, docSnap.data().views);
-      document.title = docSnap.data().videoName + " - Meme Cave";
+      document.title = docSnap.data().videoName +" - "+docSnap.data().uploadedBy;
       onSnapshot(doc(db, "users", docSnap.data().uploader_uid), (doc) => {
         setuploader(doc.data());
       });
@@ -215,9 +215,9 @@ function Video() {
                     </div>
 
                     <div className="p-2">
-                      <div className="text-lg font-medium">
+                      <h1 className="text-lg font-medium">
                         {data.videoName}
-                      </div>
+                      </h1>
                       <div className="flex sm:justify-between sm:flex-row text-gray-400">
                         {" "}
                         <div>
@@ -278,7 +278,7 @@ function Video() {
                     ) : (
                       <div className="w-full h-16 flex items-center p-4 bg-gray-800 justify-between text-lg">
                         <Link
-                          to={`/user/${data.uploader_uid}`}
+                          to={`/user/${data.uploader_uid}/profile`}
                           className="flex items-center "
                         >
                           <img
